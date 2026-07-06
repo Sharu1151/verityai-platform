@@ -336,10 +336,10 @@ function HeroDashboard() {
       </div>
 
       {/* floating chips */}
-      <div className="pointer-events-none absolute -left-4 top-16 hidden animate-float-slow lg:block">
+      <div className="pointer-events-none absolute lg:-left-20 xl:-left-28 top-16 hidden animate-float-slow lg:block">
         <FloatingChip icon={Cpu} title="AI OCR" sub="Document parsed · 1.2s" />
       </div>
-      <div className="pointer-events-none absolute -right-6 bottom-12 hidden animate-float-slow lg:block" style={{ animationDelay: "1.5s" }}>
+      <div className="pointer-events-none absolute lg:-right-20 xl:-right-28 bottom-12 hidden animate-float-slow lg:block" style={{ animationDelay: "1.5s" }}>
         <FloatingChip icon={Lock} title="AES-256 Encrypted" sub="At rest & in transit" />
       </div>
     </div>
