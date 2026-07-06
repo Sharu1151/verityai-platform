@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { Toaster } from "../components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -22,7 +23,10 @@ function NotFoundComponent() {
           The page you're looking for doesn't exist or has been moved.
         </p>
         <div className="mt-6">
-          <Link to="/" className="btn-primary inline-flex items-center rounded-md px-4 py-2 text-sm font-medium">
+          <Link
+            to="/"
+            className="btn-primary inline-flex items-center rounded-md px-4 py-2 text-sm font-medium"
+          >
             Go home
           </Link>
         </div>
@@ -41,7 +45,9 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">This page didn't load</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-foreground">
+          This page didn't load
+        </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Something went wrong on our end. You can try refreshing or head back home.
         </p>
@@ -76,14 +82,28 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Sentrust is Nepal's trust intelligence platform for enterprise background verification — citizenship, education, employment, property, CRC and police checks powered by AI and government-grade validation.",
       },
       { name: "author", content: "Sentrust" },
-      { name: "keywords", content: "background verification Nepal, citizenship verification, police verification Nepal, education verification, employee verification, CRC verification, KYC Nepal, enterprise verification platform" },
-      { property: "og:title", content: "Sentrust — AI Background Verification for Enterprises in Nepal" },
-      { property: "og:description", content: "Verify before you trust. Enterprise-grade AI verification — citizenship, education, employment, property, CRC, police checks. 99.98% accuracy, 24-hour turnaround." },
+      {
+        name: "keywords",
+        content:
+          "background verification Nepal, citizenship verification, police verification Nepal, education verification, employee verification, CRC verification, KYC Nepal, enterprise verification platform",
+      },
+      {
+        property: "og:title",
+        content: "Sentrust — AI Background Verification for Enterprises in Nepal",
+      },
+      {
+        property: "og:description",
+        content:
+          "Verify before you trust. Enterprise-grade AI verification — citizenship, education, employment, property, CRC, police checks. 99.98% accuracy, 24-hour turnaround.",
+      },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Sentrust" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Sentrust — AI Background Verification Platform" },
-      { name: "twitter:description", content: "Nepal's trust intelligence platform for enterprise verification." },
+      {
+        name: "twitter:description",
+        content: "Nepal's trust intelligence platform for enterprise verification.",
+      },
       { name: "theme-color", content: "#071A2D" },
     ],
     links: [
@@ -144,6 +164,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <Outlet />
+      <Toaster />
     </QueryClientProvider>
   );
 }

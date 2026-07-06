@@ -1,6 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import {
   ShieldCheck,
   Scan,
   Fingerprint,
@@ -33,13 +44,13 @@ import {
   Sparkles,
   Radio,
   ChevronRight,
+  Mail,
+  Chrome,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
-    meta: [
-      { property: "og:url", content: "/" },
-    ],
+    meta: [{ property: "og:url", content: "/" }],
     links: [{ rel: "canonical", href: "/" }],
     scripts: [
       {
@@ -116,18 +127,24 @@ function BackgroundFX() {
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 -z-10">
       <div className="absolute inset-0 grid-bg animate-grid-drift opacity-60" />
-      <div className="absolute -top-40 left-1/2 h-[600px] w-[900px] -translate-x-1/2 rounded-full blur-3xl"
-        style={{ background: "radial-gradient(circle, rgba(37,99,235,0.35), transparent 70%)" }} />
-      <div className="absolute top-1/2 -right-40 h-[500px] w-[500px] rounded-full blur-3xl"
-        style={{ background: "radial-gradient(circle, rgba(16,185,129,0.18), transparent 70%)" }} />
+      <div
+        className="absolute -top-40 left-1/2 h-[600px] w-[900px] -translate-x-1/2 rounded-full blur-3xl"
+        style={{ background: "radial-gradient(circle, rgba(37,99,235,0.35), transparent 70%)" }}
+      />
+      <div
+        className="absolute top-1/2 -right-40 h-[500px] w-[500px] rounded-full blur-3xl"
+        style={{ background: "radial-gradient(circle, rgba(16,185,129,0.18), transparent 70%)" }}
+      />
       <div className="noise-overlay" />
     </div>
   );
 }
 
 /* ---------------- Nav ---------------- */
+/* ---------------- Nav ---------------- */
 function Nav() {
   const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = useState(false);
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
     onScroll();
@@ -162,15 +179,35 @@ function Nav() {
           </a>
           <nav className="hidden items-center gap-7 md:flex">
             {links.map((l) => (
-              <a key={l.href} href={l.href} className="text-sm text-muted-foreground transition hover:text-foreground">
+              <a
+                key={l.href}
+                href={l.href}
+                className="text-sm text-muted-foreground transition hover:text-foreground"
+              >
                 {l.label}
               </a>
             ))}
           </nav>
           <div className="flex items-center gap-2">
-            <a href="#contact" className="hidden text-sm text-muted-foreground transition hover:text-foreground sm:inline">
-              Sign in
-            </a>
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <button className="hidden cursor-pointer text-sm text-muted-foreground transition hover:text-foreground sm:inline bg-transparent border-0 outline-none">
+                  Sign in
+                </button>
+              </DialogTrigger>
+              <DialogContent className="glass-strong border-white/10 bg-zinc-950/95 text-white max-w-sm rounded-2xl shadow-2xl backdrop-blur-xl p-6">
+                <DialogHeader className="flex flex-col items-center text-center">
+                  <Logo />
+                  <DialogTitle className="mt-4 text-xl font-bold text-white">
+                    Welcome back
+                  </DialogTitle>
+                  <DialogDescription className="text-xs text-muted-foreground">
+                    Sign in to your Sentrust enterprise portal
+                  </DialogDescription>
+                </DialogHeader>
+                <SignInForm onSuccess={() => setOpen(false)} />
+              </DialogContent>
+            </Dialog>
             <a
               href="#contact"
               className="btn-primary group inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-medium"
@@ -185,12 +222,170 @@ function Nav() {
   );
 }
 
+function SignInForm({ onSuccess }: { onSuccess: () => void }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) {
+      toast.error("Please fill in all fields.");
+      return;
+    }
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      toast.success("Successfully logged in!");
+      onSuccess();
+    }, 1200);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+      <div className="space-y-1.5">
+        <label htmlFor="signin-email" className="text-xs font-medium text-zinc-300">
+          Email address
+        </label>
+        <div className="relative">
+          <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            id="signin-email"
+            type="email"
+            placeholder="name@company.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="border-white/10 bg-white/5 pl-10 text-white placeholder-muted-foreground focus:ring-1 focus:ring-primary focus-visible:ring-primary focus-visible:ring-1"
+            required
+            disabled={isLoading}
+          />
+        </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between">
+          <label htmlFor="signin-password" className="text-xs font-medium text-zinc-300">
+            Password
+          </label>
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              toast.info("Password reset instructions sent to your email (Mock).");
+            }}
+            className="text-[11px] text-primary hover:underline"
+          >
+            Forgot?
+          </a>
+        </div>
+        <div className="relative">
+          <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            id="signin-password"
+            type="password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="border-white/10 bg-white/5 pl-10 text-white placeholder-muted-foreground focus:ring-1 focus:ring-primary focus-visible:ring-primary focus-visible:ring-1"
+            required
+            disabled={isLoading}
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center space-x-2 pt-1">
+        <input
+          type="checkbox"
+          id="signin-remember"
+          className="h-3.5 w-3.5 rounded border-white/10 bg-white/5 text-primary focus:ring-0 focus:ring-offset-0"
+        />
+        <label htmlFor="signin-remember" className="text-xs text-muted-foreground select-none">
+          Remember me for 30 days
+        </label>
+      </div>
+
+      <Button
+        type="submit"
+        disabled={isLoading}
+        className="w-full bg-gradient-to-r from-blue-600 to-emerald-500 hover:opacity-90 text-white py-2 rounded-xl font-semibold shadow-lg shadow-blue-500/10 transition-all duration-300 h-10 mt-2 cursor-pointer"
+      >
+        {isLoading ? "Signing in..." : "Sign in to Sentrust"}
+      </Button>
+
+      <div className="relative my-4 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-white/5"></div>
+        </div>
+        <span className="relative bg-zinc-950/95 px-3 text-[10px] uppercase tracking-wider text-muted-foreground">
+          or login with
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          onClick={() => {
+            setIsLoading(true);
+            setTimeout(() => {
+              setIsLoading(false);
+              toast.success("Successfully logged in via Google!");
+              onSuccess();
+            }, 1000);
+          }}
+          className="flex h-9 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.02] text-xs font-medium hover:bg-white/5 cursor-pointer transition duration-200 text-white"
+          disabled={isLoading}
+        >
+          <Chrome className="h-3.5 w-3.5 text-red-400" />
+          Google
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setIsLoading(true);
+            setTimeout(() => {
+              setIsLoading(false);
+              toast.success("Successfully logged in via SSO!");
+              onSuccess();
+            }, 1000);
+          }}
+          className="flex h-9 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.02] text-xs font-medium hover:bg-white/5 cursor-pointer transition duration-200 text-white"
+          disabled={isLoading}
+        >
+          <Landmark className="h-3.5 w-3.5 text-emerald-400" />
+          SSO
+        </button>
+      </div>
+
+      <p className="mt-4 text-center text-[11px] text-muted-foreground">
+        Don't have an enterprise account?{" "}
+        <a
+          href="#contact"
+          onClick={(e) => {
+            e.preventDefault();
+            onSuccess();
+            const element = document.getElementById("contact");
+            if (element) {
+              element.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
+          className="text-white hover:underline cursor-pointer"
+        >
+          Contact Sales
+        </a>
+      </p>
+    </form>
+  );
+}
+
 function Logo() {
   return (
-    <div className="relative grid h-8 w-8 place-items-center rounded-lg" style={{
-      background: "linear-gradient(135deg,#2563EB,#10B981)",
-      boxShadow: "0 6px 20px -4px rgba(37,99,235,.55)"
-    }}>
+    <div
+      className="relative grid h-8 w-8 place-items-center rounded-lg"
+      style={{
+        background: "linear-gradient(135deg,#2563EB,#10B981)",
+        boxShadow: "0 6px 20px -4px rgba(37,99,235,.55)",
+      }}
+    >
       <ShieldCheck className="h-4 w-4 text-white" />
       <span className="absolute inset-0 rounded-lg ring-1 ring-white/20" />
     </div>
@@ -218,23 +413,38 @@ function Hero() {
               <span className="text-gradient-brand">you trust.</span>
             </h1>
 
-            <p className="mt-6 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground animate-rise" style={{ animationDelay: ".1s" }}>
-              Enterprise-grade background verification for banks, government, insurance, healthcare and
-              HR — powered by AI, human review and direct integrations with Nepal's authorised
+            <p
+              className="mt-6 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground animate-rise"
+              style={{ animationDelay: ".1s" }}
+            >
+              Enterprise-grade background verification for banks, government, insurance, healthcare
+              and HR — powered by AI, human review and direct integrations with Nepal's authorised
               registries.
             </p>
 
-            <div className="mt-8 flex flex-wrap items-center gap-3 animate-rise" style={{ animationDelay: ".2s" }}>
-              <a href="#contact" className="btn-primary group inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold">
+            <div
+              className="mt-8 flex flex-wrap items-center gap-3 animate-rise"
+              style={{ animationDelay: ".2s" }}
+            >
+              <a
+                href="#contact"
+                className="btn-primary group inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold"
+              >
                 Start Verification
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </a>
-              <a href="#contact" className="btn-ghost inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-medium">
+              <a
+                href="#contact"
+                className="btn-ghost inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-medium"
+              >
                 Schedule Consultation
               </a>
             </div>
 
-            <dl className="mt-12 grid grid-cols-2 gap-6 sm:grid-cols-4 animate-rise" style={{ animationDelay: ".3s" }}>
+            <dl
+              className="mt-12 grid grid-cols-2 gap-6 sm:grid-cols-4 animate-rise"
+              style={{ animationDelay: ".3s" }}
+            >
               {[
                 { v: "250,000+", l: "Successful Verifications" },
                 { v: "99.98%", l: "Accuracy" },
@@ -242,8 +452,12 @@ function Hero() {
                 { v: "500+", l: "Enterprise Clients" },
               ].map((s) => (
                 <div key={s.l}>
-                  <dt className="text-2xl font-semibold tracking-tight sm:text-3xl text-gradient">{s.v}</dt>
-                  <dd className="mt-1 text-xs uppercase tracking-widest text-muted-foreground">{s.l}</dd>
+                  <dt className="text-2xl font-semibold tracking-tight sm:text-3xl text-gradient">
+                    {s.v}
+                  </dt>
+                  <dd className="mt-1 text-xs uppercase tracking-widest text-muted-foreground">
+                    {s.l}
+                  </dd>
                 </div>
               ))}
             </dl>
@@ -260,10 +474,25 @@ function Hero() {
 
 function HeroDashboard() {
   const items = [
-    { icon: Fingerprint, label: "Identity Verified", meta: "Citizenship · 987-654-321", status: "verified" },
-    { icon: GraduationCap, label: "Education Verified", meta: "Tribhuvan University · BSc", status: "verified" },
+    {
+      icon: Fingerprint,
+      label: "Identity Verified",
+      meta: "Citizenship · 987-654-321",
+      status: "verified",
+    },
+    {
+      icon: GraduationCap,
+      label: "Education Verified",
+      meta: "Tribhuvan University · BSc",
+      status: "verified",
+    },
     { icon: BadgeCheck, label: "Police Clearance", meta: "Kathmandu · Clear", status: "verified" },
-    { icon: HomeIcon, label: "Property Verified", meta: "Lalitpur · Plot 2841/B", status: "verified" },
+    {
+      icon: HomeIcon,
+      label: "Property Verified",
+      meta: "Lalitpur · Plot 2841/B",
+      status: "verified",
+    },
     { icon: Activity, label: "Risk Score Updated", meta: "Low · 04/100", status: "info" },
   ];
   return (
@@ -271,13 +500,22 @@ function HeroDashboard() {
       {/* pulse rings behind */}
       <div className="pointer-events-none absolute -inset-8">
         <div className="absolute left-1/2 top-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/30 animate-pulse-ring" />
-        <div className="absolute left-1/2 top-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full border border-emerald-400/30 animate-pulse-ring" style={{ animationDelay: "1.2s" }} />
+        <div
+          className="absolute left-1/2 top-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full border border-emerald-400/30 animate-pulse-ring"
+          style={{ animationDelay: "1.2s" }}
+        />
       </div>
 
       <div className="glass-strong glow-ring relative overflow-hidden rounded-2xl p-5">
         {/* scan line */}
         <div className="pointer-events-none absolute inset-x-0 top-0 h-full">
-          <div className="absolute inset-x-0 h-24 animate-scan" style={{ background: "linear-gradient(180deg, transparent, rgba(16,185,129,0.22), transparent)" }} />
+          <div
+            className="absolute inset-x-0 h-24 animate-scan"
+            style={{
+              background:
+                "linear-gradient(180deg, transparent, rgba(16,185,129,0.22), transparent)",
+            }}
+          />
         </div>
 
         <div className="flex items-center justify-between">
@@ -298,7 +536,9 @@ function HeroDashboard() {
           </div>
           <div className="flex-1">
             <div className="text-sm font-medium">Aayush Sharma</div>
-            <div className="text-xs text-muted-foreground">Application #NP-4482 · Enterprise HR</div>
+            <div className="text-xs text-muted-foreground">
+              Application #NP-4482 · Enterprise HR
+            </div>
           </div>
           <div className="rounded-md bg-emerald-500/15 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-300">
             Verified
@@ -339,7 +579,10 @@ function HeroDashboard() {
       <div className="pointer-events-none absolute lg:-left-20 xl:-left-28 top-16 hidden animate-float-slow lg:block">
         <FloatingChip icon={Cpu} title="AI OCR" sub="Document parsed · 1.2s" />
       </div>
-      <div className="pointer-events-none absolute lg:-right-20 xl:-right-28 bottom-12 hidden animate-float-slow lg:block" style={{ animationDelay: "1.5s" }}>
+      <div
+        className="pointer-events-none absolute lg:-right-20 xl:-right-28 bottom-12 hidden animate-float-slow lg:block"
+        style={{ animationDelay: "1.5s" }}
+      >
         <FloatingChip icon={Lock} title="AES-256 Encrypted" sub="At rest & in transit" />
       </div>
     </div>
@@ -355,7 +598,15 @@ function MiniStat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function FloatingChip({ icon: Icon, title, sub }: { icon: typeof Cpu; title: string; sub: string }) {
+function FloatingChip({
+  icon: Icon,
+  title,
+  sub,
+}: {
+  icon: typeof Cpu;
+  title: string;
+  sub: string;
+}) {
   return (
     <div className="glass-strong flex items-center gap-2.5 rounded-xl px-3 py-2 shadow-2xl">
       <div className="grid h-7 w-7 place-items-center rounded-md bg-primary/20 text-primary">
@@ -381,11 +632,17 @@ function TrustStrip() {
     "Nepal Rastra Bank ready",
   ];
   return (
-    <section aria-label="Trust indicators" className="relative mt-24 border-y border-white/[0.06] bg-white/[0.015] py-4">
+    <section
+      aria-label="Trust indicators"
+      className="relative mt-24 border-y border-white/[0.06] bg-white/[0.015] py-4"
+    >
       <div className="mx-auto max-w-7xl overflow-hidden px-4">
         <div className="flex gap-10 whitespace-nowrap animate-marquee">
           {[...items, ...items].map((t, i) => (
-            <div key={i} className="flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground">
+            <div
+              key={i}
+              className="flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground"
+            >
               <Check className="h-3.5 w-3.5 text-emerald-400" /> {t}
             </div>
           ))}
@@ -455,7 +712,9 @@ function Services() {
               <h3 className="mt-5 text-lg font-semibold tracking-tight">{s.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
               <div className="mt-6 flex items-center justify-between text-sm">
-                <span className="text-xs uppercase tracking-widest text-muted-foreground">Live in Nepal</span>
+                <span className="text-xs uppercase tracking-widest text-muted-foreground">
+                  Live in Nepal
+                </span>
                 <ArrowUpRight className="h-4 w-4 text-muted-foreground transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-white" />
               </div>
             </div>
@@ -476,23 +735,48 @@ function WhyUs() {
         sub="A verification stack designed with the operational and regulatory reality of Nepali enterprises."
       />
       <div className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-6 md:grid-rows-4">
-        <Bento className="md:col-span-3 md:row-span-2" title="AI-first verification engine" desc="OCR, forgery detection, face-match and risk scoring across every submission — trained on Nepal-specific documents.">
+        <Bento
+          className="md:col-span-3 md:row-span-2"
+          title="AI-first verification engine"
+          desc="OCR, forgery detection, face-match and risk scoring across every submission — trained on Nepal-specific documents."
+        >
           <NeuralViz />
         </Bento>
-        <Bento className="md:col-span-3 md:row-span-2" title="Human review, on every edge case" desc="AI drives speed. Certified reviewers make the final call on anomalies, protecting you from false positives.">
+        <Bento
+          className="md:col-span-3 md:row-span-2"
+          title="Human review, on every edge case"
+          desc="AI drives speed. Certified reviewers make the final call on anomalies, protecting you from false positives."
+        >
           <ReviewerViz />
         </Bento>
-        <Bento className="md:col-span-2 md:row-span-2" title="AES-256 encryption" desc="Data encrypted at rest and in transit with tenant-isolated keys.">
+        <Bento
+          className="md:col-span-2 md:row-span-2"
+          title="AES-256 encryption"
+          desc="Data encrypted at rest and in transit with tenant-isolated keys."
+        >
           <Lock className="h-10 w-10 text-emerald-400" />
         </Bento>
-        <Bento className="md:col-span-2 md:row-span-2" title="Compliance-ready" desc="Aligned with Nepal Privacy Act 2075, ISO 27001 controls, NRB & IRDA guidance.">
+        <Bento
+          className="md:col-span-2 md:row-span-2"
+          title="Compliance-ready"
+          desc="Aligned with Nepal Privacy Act 2075, ISO 27001 controls, NRB & IRDA guidance."
+        >
           <div className="grid grid-cols-2 gap-2">
-            {["ISO 27001","NRB","Privacy Act","SOC 2"].map((t) => (
-              <div key={t} className="rounded-md border border-white/10 bg-white/5 px-2 py-1.5 text-center text-[11px] font-medium">{t}</div>
+            {["ISO 27001", "NRB", "Privacy Act", "SOC 2"].map((t) => (
+              <div
+                key={t}
+                className="rounded-md border border-white/10 bg-white/5 px-2 py-1.5 text-center text-[11px] font-medium"
+              >
+                {t}
+              </div>
             ))}
           </div>
         </Bento>
-        <Bento className="md:col-span-2 md:row-span-2" title="Enterprise APIs" desc="REST, webhooks, HRMS & core-banking connectors.">
+        <Bento
+          className="md:col-span-2 md:row-span-2"
+          title="Enterprise APIs"
+          desc="REST, webhooks, HRMS & core-banking connectors."
+        >
           <ApiViz />
         </Bento>
       </div>
@@ -500,9 +784,21 @@ function WhyUs() {
   );
 }
 
-function Bento({ children, title, desc, className = "" }: { children?: React.ReactNode; title: string; desc: string; className?: string }) {
+function Bento({
+  children,
+  title,
+  desc,
+  className = "",
+}: {
+  children?: React.ReactNode;
+  title: string;
+  desc: string;
+  className?: string;
+}) {
   return (
-    <div className={`card-surface group relative flex flex-col justify-between overflow-hidden p-6 ${className}`}>
+    <div
+      className={`card-surface group relative flex flex-col justify-between overflow-hidden p-6 ${className}`}
+    >
       <div className="min-h-24">{children}</div>
       <div className="mt-4">
         <h3 className="text-base font-semibold tracking-tight">{title}</h3>
@@ -514,9 +810,16 @@ function Bento({ children, title, desc, className = "" }: { children?: React.Rea
 
 function NeuralViz() {
   const nodes = [
-    { x: 15, y: 30 }, { x: 15, y: 60 }, { x: 15, y: 90 },
-    { x: 50, y: 20 }, { x: 50, y: 55 }, { x: 50, y: 90 }, { x: 50, y: 125 },
-    { x: 85, y: 40 }, { x: 85, y: 75 }, { x: 85, y: 110 },
+    { x: 15, y: 30 },
+    { x: 15, y: 60 },
+    { x: 15, y: 90 },
+    { x: 50, y: 20 },
+    { x: 50, y: 55 },
+    { x: 50, y: 90 },
+    { x: 50, y: 125 },
+    { x: 85, y: 40 },
+    { x: 85, y: 75 },
+    { x: 85, y: 110 },
   ];
   const layerA = nodes.slice(0, 3);
   const layerB = nodes.slice(3, 7);
@@ -531,16 +834,42 @@ function NeuralViz() {
       </defs>
       {layerA.map((a, i) =>
         layerB.map((b, j) => (
-          <line key={`ab${i}${j}`} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="url(#edge)" strokeWidth="0.35" opacity="0.6" />
-        ))
+          <line
+            key={`ab${i}${j}`}
+            x1={a.x}
+            y1={a.y}
+            x2={b.x}
+            y2={b.y}
+            stroke="url(#edge)"
+            strokeWidth="0.35"
+            opacity="0.6"
+          />
+        )),
       )}
       {layerB.map((a, i) =>
         layerC.map((b, j) => (
-          <line key={`bc${i}${j}`} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="url(#edge)" strokeWidth="0.35" opacity="0.6" />
-        ))
+          <line
+            key={`bc${i}${j}`}
+            x1={a.x}
+            y1={a.y}
+            x2={b.x}
+            y2={b.y}
+            stroke="url(#edge)"
+            strokeWidth="0.35"
+            opacity="0.6"
+          />
+        )),
       )}
       {nodes.map((n, i) => (
-        <circle key={i} cx={n.x} cy={n.y} r="2" fill="#fff" className="animate-glow-pulse" style={{ animationDelay: `${i * 0.15}s` }} />
+        <circle
+          key={i}
+          cx={n.x}
+          cy={n.y}
+          r="2"
+          fill="#fff"
+          className="animate-glow-pulse"
+          style={{ animationDelay: `${i * 0.15}s` }}
+        />
       ))}
     </svg>
   );
@@ -551,7 +880,11 @@ function ReviewerViz() {
     <div className="relative h-32 w-full">
       <div className="absolute inset-0 flex items-center justify-center gap-3">
         {[Brain, Eye, UserCheck].map((I, i) => (
-          <div key={i} className="glass grid h-16 w-16 place-items-center rounded-xl animate-float-slow" style={{ animationDelay: `${i * 0.4}s` }}>
+          <div
+            key={i}
+            className="glass grid h-16 w-16 place-items-center rounded-xl animate-float-slow"
+            style={{ animationDelay: `${i * 0.4}s` }}
+          >
             <I className="h-6 w-6 text-primary" />
           </div>
         ))}
@@ -574,11 +907,31 @@ function ApiViz() {
 /* ---------------- How It Works ---------------- */
 function HowItWorks() {
   const steps = [
-    { icon: FileCheck2, title: "Submit request", desc: "Trigger a verification via dashboard, API or bulk import." },
-    { icon: Scan, title: "Upload documents", desc: "Secure vault ingests documents with instant OCR & structuring." },
-    { icon: Cpu, title: "AI verification", desc: "OCR, face-match, forgery detection and registry cross-check run in parallel." },
-    { icon: Eye, title: "Human review", desc: "Certified reviewers validate flagged anomalies with a full evidence trail." },
-    { icon: BadgeCheck, title: "Verification report", desc: "Signed, tamper-evident report delivered with API webhook & PDF." },
+    {
+      icon: FileCheck2,
+      title: "Submit request",
+      desc: "Trigger a verification via dashboard, API or bulk import.",
+    },
+    {
+      icon: Scan,
+      title: "Upload documents",
+      desc: "Secure vault ingests documents with instant OCR & structuring.",
+    },
+    {
+      icon: Cpu,
+      title: "AI verification",
+      desc: "OCR, face-match, forgery detection and registry cross-check run in parallel.",
+    },
+    {
+      icon: Eye,
+      title: "Human review",
+      desc: "Certified reviewers validate flagged anomalies with a full evidence trail.",
+    },
+    {
+      icon: BadgeCheck,
+      title: "Verification report",
+      desc: "Signed, tamper-evident report delivered with API webhook & PDF.",
+    },
   ];
   return (
     <section className="relative mx-auto mt-32 max-w-7xl px-4">
@@ -660,11 +1013,17 @@ function EngineOrbit() {
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/10"
           style={{ width: s, height: s }}
         >
-          <div className="absolute inset-0 rounded-full border border-primary/20 animate-glow-pulse" style={{ animationDelay: `${i * 0.4}s` }} />
+          <div
+            className="absolute inset-0 rounded-full border border-primary/20 animate-glow-pulse"
+            style={{ animationDelay: `${i * 0.4}s` }}
+          />
         </div>
       ))}
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-        <div className="grid h-24 w-24 place-items-center rounded-2xl glow-ring" style={{ background: "linear-gradient(135deg,#2563EB,#10B981)" }}>
+        <div
+          className="grid h-24 w-24 place-items-center rounded-2xl glow-ring"
+          style={{ background: "linear-gradient(135deg,#2563EB,#10B981)" }}
+        >
           <Brain className="h-10 w-10 text-white" />
         </div>
       </div>
@@ -676,7 +1035,11 @@ function EngineOrbit() {
         { i: Lock, x: "6%", y: "50%" },
         { i: Scan, x: "18%", y: "14%" },
       ].map(({ i: Icon, x, y }, k) => (
-        <div key={k} className="glass absolute grid h-11 w-11 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-xl animate-float-slow" style={{ left: x, top: y, animationDelay: `${k * 0.4}s` }}>
+        <div
+          key={k}
+          className="glass absolute grid h-11 w-11 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-xl animate-float-slow"
+          style={{ left: x, top: y, animationDelay: `${k * 0.4}s` }}
+        >
           <Icon className="h-5 w-5 text-primary" />
         </div>
       ))}
@@ -707,7 +1070,10 @@ function Industries() {
       />
       <div className="mt-14 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
         {industries.map((i) => (
-          <div key={i.name} className="card-surface flex flex-col items-center justify-center p-6 text-center">
+          <div
+            key={i.name}
+            className="card-surface flex flex-col items-center justify-center p-6 text-center"
+          >
             <div className="grid h-11 w-11 place-items-center rounded-xl border border-white/10 bg-white/5 text-primary">
               <i.icon className="h-5 w-5" />
             </div>
@@ -741,8 +1107,9 @@ function Security() {
             Bank-grade infrastructure. Government-ready controls.
           </h2>
           <p className="mt-5 max-w-xl text-muted-foreground">
-            Every verification runs on isolated infrastructure with defence-in-depth controls, immutable
-            audit trails, and access governance that satisfies internal audit and regulator review alike.
+            Every verification runs on isolated infrastructure with defence-in-depth controls,
+            immutable audit trails, and access governance that satisfies internal audit and
+            regulator review alike.
           </p>
           <ul className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
             {features.map((f) => (
@@ -764,15 +1131,32 @@ function BigLock() {
   return (
     <div className="relative mx-auto aspect-square w-full max-w-sm">
       <div className="absolute inset-8 rounded-full border border-white/10 animate-glow-pulse" />
-      <div className="absolute inset-16 rounded-full border border-primary/30 animate-glow-pulse" style={{ animationDelay: ".3s" }} />
-      <div className="absolute inset-24 rounded-full border border-emerald-400/30 animate-glow-pulse" style={{ animationDelay: ".6s" }} />
+      <div
+        className="absolute inset-16 rounded-full border border-primary/30 animate-glow-pulse"
+        style={{ animationDelay: ".3s" }}
+      />
+      <div
+        className="absolute inset-24 rounded-full border border-emerald-400/30 animate-glow-pulse"
+        style={{ animationDelay: ".6s" }}
+      />
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-        <div className="grid h-28 w-28 place-items-center rounded-3xl glow-ring" style={{ background: "linear-gradient(135deg,#2563EB,#10B981)" }}>
+        <div
+          className="grid h-28 w-28 place-items-center rounded-3xl glow-ring"
+          style={{ background: "linear-gradient(135deg,#2563EB,#10B981)" }}
+        >
           <Lock className="h-12 w-12 text-white" />
         </div>
       </div>
       <svg className="absolute inset-0 h-full w-full" viewBox="0 0 200 200">
-        <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(37,99,235,.5)" strokeWidth="1" className="animate-dash" />
+        <circle
+          cx="100"
+          cy="100"
+          r="80"
+          fill="none"
+          stroke="rgba(37,99,235,.5)"
+          strokeWidth="1"
+          className="animate-dash"
+        />
       </svg>
     </div>
   );
@@ -803,7 +1187,10 @@ function DashboardPreview() {
                 { n: "Pooja Shrestha", t: "Police", s: "In progress", c: "text-primary" },
                 { n: "Bikash Tamang", t: "CRC", s: "Verified", c: "text-emerald-400" },
               ].map((r) => (
-                <li key={r.n} className="flex items-center justify-between rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2">
+                <li
+                  key={r.n}
+                  className="flex items-center justify-between rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2"
+                >
                   <div>
                     <div className="text-sm">{r.n}</div>
                     <div className="text-[11px] text-muted-foreground">{r.t}</div>
@@ -896,11 +1283,25 @@ function NepalMap() {
         stroke="rgba(255,255,255,.15)"
       />
       {[
-        [50, 55], [90, 50], [130, 55], [70, 65], [155, 60], [110, 62],
+        [50, 55],
+        [90, 50],
+        [130, 55],
+        [70, 65],
+        [155, 60],
+        [110, 62],
       ].map(([x, y], i) => (
         <g key={i}>
           <circle cx={x} cy={y} r="2" fill="#fff" />
-          <circle cx={x} cy={y} r="6" fill="none" stroke="#10B981" opacity=".4" className="animate-glow-pulse" style={{ animationDelay: `${i * 0.3}s` }} />
+          <circle
+            cx={x}
+            cy={y}
+            r="6"
+            fill="none"
+            stroke="#10B981"
+            opacity=".4"
+            className="animate-glow-pulse"
+            style={{ animationDelay: `${i * 0.3}s` }}
+          />
         </g>
       ))}
     </svg>
@@ -911,22 +1312,26 @@ function NepalMap() {
 function Testimonials() {
   const items = [
     {
-      quote: "Sentrust cut our onboarding time from 9 days to under 24 hours across 42 branches — with zero compliance escalations.",
+      quote:
+        "Sentrust cut our onboarding time from 9 days to under 24 hours across 42 branches — with zero compliance escalations.",
       author: "Head of HR",
       org: "Tier-1 Commercial Bank, Kathmandu",
     },
     {
-      quote: "The only vendor whose forgery detection consistently catches manipulated academic transcripts we would have missed manually.",
+      quote:
+        "The only vendor whose forgery detection consistently catches manipulated academic transcripts we would have missed manually.",
       author: "Chief Compliance Officer",
       org: "National Insurance Group",
     },
     {
-      quote: "Sentrust's API let us wire verification into our loan flow in a week. Approvals are faster and defaults are down.",
+      quote:
+        "Sentrust's API let us wire verification into our loan flow in a week. Approvals are faster and defaults are down.",
       author: "CTO",
       org: "Digital Lending Fintech",
     },
     {
-      quote: "For property due diligence across districts, nothing else comes close. The reports are audit-grade.",
+      quote:
+        "For property due diligence across districts, nothing else comes close. The reports are audit-grade.",
       author: "Partner",
       org: "Legal Advisory Firm",
     },
@@ -942,13 +1347,21 @@ function Testimonials() {
           <figure key={t.author} className="card-surface p-6">
             <div className="flex items-center gap-2 text-primary">
               {Array.from({ length: 5 }).map((_, i) => (
-                <span key={i} className="text-sm">★</span>
+                <span key={i} className="text-sm">
+                  ★
+                </span>
               ))}
             </div>
-            <blockquote className="mt-4 text-lg leading-relaxed text-foreground/90">"{t.quote}"</blockquote>
+            <blockquote className="mt-4 text-lg leading-relaxed text-foreground/90">
+              "{t.quote}"
+            </blockquote>
             <figcaption className="mt-5 flex items-center gap-3">
               <div className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5 text-xs font-semibold">
-                {t.author.split(" ").map((w) => w[0]).slice(0, 2).join("")}
+                {t.author
+                  .split(" ")
+                  .map((w) => w[0])
+                  .slice(0, 2)
+                  .join("")}
               </div>
               <div>
                 <div className="text-sm font-medium">{t.author}</div>
@@ -963,9 +1376,23 @@ function Testimonials() {
       <div className="mt-10 overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.015] py-6">
         <div className="flex items-center gap-16 whitespace-nowrap animate-marquee px-8 opacity-60">
           {[...Array(2)].flatMap((_, k) =>
-            ["HIMALAYAN BANK","EVEREST INSURANCE","NEPAL FINANCE","SUMMIT HR","KATHMANDU LEGAL","ANNAPURNA HEALTH","LUMBINI TRUST","POKHARA CAPITAL"].map((n, i) => (
-              <div key={`${k}-${i}`} className="text-xs uppercase tracking-[0.35em] text-muted-foreground">{n}</div>
-            ))
+            [
+              "HIMALAYAN BANK",
+              "EVEREST INSURANCE",
+              "NEPAL FINANCE",
+              "SUMMIT HR",
+              "KATHMANDU LEGAL",
+              "ANNAPURNA HEALTH",
+              "LUMBINI TRUST",
+              "POKHARA CAPITAL",
+            ].map((n, i) => (
+              <div
+                key={`${k}-${i}`}
+                className="text-xs uppercase tracking-[0.35em] text-muted-foreground"
+              >
+                {n}
+              </div>
+            )),
           )}
         </div>
       </div>
@@ -1016,7 +1443,12 @@ function FinalCTA() {
     <section id="contact" className="relative mx-auto mt-32 max-w-6xl px-4">
       <div className="glass-strong glow-ring relative overflow-hidden rounded-3xl p-10 sm:p-16 text-center">
         <div className="pointer-events-none absolute inset-0 grid-bg opacity-40" />
-        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse at center, rgba(37,99,235,.2), transparent 60%)" }} />
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background: "radial-gradient(ellipse at center, rgba(37,99,235,.2), transparent 60%)",
+          }}
+        />
         <div className="relative">
           <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-muted-foreground">
             <Zap className="h-3.5 w-3.5 text-emerald-400" /> Onboard in 48 hours
@@ -1025,13 +1457,20 @@ function FinalCTA() {
             Trust begins with verification.
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-muted-foreground">
-            Talk to our enterprise team about verification workflows for your bank, HR, insurance or government use case in Nepal.
+            Talk to our enterprise team about verification workflows for your bank, HR, insurance or
+            government use case in Nepal.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <a href="#contact" className="btn-primary inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold">
+            <a
+              href="#contact"
+              className="btn-primary inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold"
+            >
               Book Consultation <ArrowRight className="h-4 w-4" />
             </a>
-            <a href="#contact" className="btn-ghost inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-medium">
+            <a
+              href="#contact"
+              className="btn-ghost inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-medium"
+            >
               Start Verification
             </a>
           </div>
@@ -1061,9 +1500,7 @@ function Footer() {
             <p className="mt-4 max-w-xs text-sm text-muted-foreground">
               Nepal's trust intelligence platform for enterprise background verification.
             </p>
-            <div className="mt-5 text-xs text-muted-foreground">
-              Kathmandu · Nepal
-            </div>
+            <div className="mt-5 text-xs text-muted-foreground">Kathmandu · Nepal</div>
           </div>
           {cols.map((c) => (
             <div key={c.h}>
@@ -1071,7 +1508,12 @@ function Footer() {
               <ul className="mt-4 space-y-2.5 text-sm">
                 {c.l.map((x) => (
                   <li key={x}>
-                    <a href="#contact" className="text-foreground/80 transition hover:text-foreground">{x}</a>
+                    <a
+                      href="#contact"
+                      className="text-foreground/80 transition hover:text-foreground"
+                    >
+                      {x}
+                    </a>
                   </li>
                 ))}
               </ul>
@@ -1079,11 +1521,19 @@ function Footer() {
           ))}
         </div>
         <div className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-white/[0.06] pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center">
-          <div>© {new Date().getFullYear()} Sentrust Technologies Pvt. Ltd. All rights reserved.</div>
+          <div>
+            © {new Date().getFullYear()} Sentrust Technologies Pvt. Ltd. All rights reserved.
+          </div>
           <div className="flex gap-5">
-            <a href="#" className="hover:text-foreground">LinkedIn</a>
-            <a href="#" className="hover:text-foreground">Status</a>
-            <a href="#" className="hover:text-foreground">Security</a>
+            <a href="#" className="hover:text-foreground">
+              LinkedIn
+            </a>
+            <a href="#" className="hover:text-foreground">
+              Status
+            </a>
+            <a href="#" className="hover:text-foreground">
+              Security
+            </a>
           </div>
         </div>
       </div>
