@@ -220,7 +220,7 @@ function Nav() {
 
             <a
               href="#contact"
-              className="btn-primary group inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-medium"
+              className="btn-primary group hidden sm:inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-medium"
             >
               Start Verification
               <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
