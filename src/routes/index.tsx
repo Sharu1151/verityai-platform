@@ -8,6 +8,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -46,6 +54,7 @@ import {
   ChevronRight,
   Mail,
   Chrome,
+  Menu,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -141,10 +150,10 @@ function BackgroundFX() {
 }
 
 /* ---------------- Nav ---------------- */
-/* ---------------- Nav ---------------- */
 function Nav() {
   const [scrolled, setScrolled] = useState(false);
-  const [open, setOpen] = useState(false);
+  const [signInOpen, setSignInOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
     onScroll();
@@ -152,11 +161,11 @@ function Nav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
   const links = [
-    { href: "#services", label: "Services" },
-    { href: "#engine", label: "AI Engine" },
-    { href: "#industries", label: "Industries" },
-    { href: "#security", label: "Security" },
-    { href: "#faq", label: "FAQ" },
+    { href: "#services", label: "Services", icon: Fingerprint },
+    { href: "#engine", label: "AI Engine", icon: Brain },
+    { href: "#industries", label: "Industries", icon: Building },
+    { href: "#security", label: "Security", icon: Lock },
+    { href: "#faq", label: "FAQ", icon: ShieldCheck },
   ];
   return (
     <header
@@ -189,7 +198,7 @@ function Nav() {
             ))}
           </nav>
           <div className="flex items-center gap-2">
-            <Dialog open={open} onOpenChange={setOpen}>
+            <Dialog open={signInOpen} onOpenChange={setSignInOpen}>
               <DialogTrigger asChild>
                 <button className="hidden cursor-pointer text-sm text-muted-foreground transition hover:text-foreground sm:inline bg-transparent border-0 outline-none">
                   Sign in
@@ -205,9 +214,10 @@ function Nav() {
                     Sign in to your Sentrust enterprise portal
                   </DialogDescription>
                 </DialogHeader>
-                <SignInForm onSuccess={() => setOpen(false)} />
+                <SignInForm onSuccess={() => setSignInOpen(false)} />
               </DialogContent>
             </Dialog>
+
             <a
               href="#contact"
               className="btn-primary group inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-medium"
@@ -215,6 +225,74 @@ function Nav() {
               Start Verification
               <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
             </a>
+
+            {/* Mobile Navigation Drawer Toggle */}
+            <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+              <SheetTrigger asChild>
+                <button className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/5 text-muted-foreground transition hover:text-white md:hidden cursor-pointer bg-transparent outline-none">
+                  <Menu className="h-4 w-4" />
+                </button>
+              </SheetTrigger>
+              <SheetContent
+                side="right"
+                className="glass-strong border-l border-white/10 bg-zinc-950/95 text-white p-6 flex flex-col justify-between"
+              >
+                <div>
+                  <SheetHeader className="flex flex-row items-center gap-2.5 border-b border-white/5 pb-5 text-left">
+                    <Logo />
+                    <div>
+                      <SheetTitle className="text-base font-semibold text-white leading-none">
+                        Sentrust
+                      </SheetTitle>
+                      <SheetDescription className="text-[10px] text-muted-foreground mt-1">
+                        Nepal's Trust Intelligence
+                      </SheetDescription>
+                    </div>
+                  </SheetHeader>
+
+                  <nav className="mt-8 flex flex-col gap-2">
+                    {links.map((l, i) => (
+                      <a
+                        key={l.href}
+                        href={l.href}
+                        onClick={() => setMenuOpen(false)}
+                        className="flex items-center gap-3.5 rounded-xl border border-white/5 bg-white/[0.01] px-4 py-3 text-sm font-medium text-muted-foreground transition hover:border-white/10 hover:bg-white/5 hover:text-white"
+                        style={{
+                          animation: "rise 0.4s ease forwards",
+                          animationDelay: `${i * 0.05}s`,
+                          opacity: 0,
+                        }}
+                      >
+                        <div className="grid h-7 w-7 place-items-center rounded-lg bg-primary/10 text-primary">
+                          <l.icon className="h-4 w-4" />
+                        </div>
+                        {l.label}
+                      </a>
+                    ))}
+                  </nav>
+                </div>
+
+                <div className="mt-auto border-t border-white/5 pt-5 flex flex-col gap-2.5">
+                  <button
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setTimeout(() => setSignInOpen(true), 250);
+                    }}
+                    className="w-full h-10 border border-white/10 bg-white/5 text-white rounded-xl font-medium text-sm transition hover:bg-white/10 cursor-pointer"
+                  >
+                    Sign in
+                  </button>
+                  <a
+                    href="#contact"
+                    onClick={() => setMenuOpen(false)}
+                    className="btn-primary flex h-10 items-center justify-center gap-1.5 rounded-xl text-sm font-medium"
+                  >
+                    Start Verification
+                    <ArrowRight className="h-4 w-4" />
+                  </a>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </div>
