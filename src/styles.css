@@ -138,6 +138,12 @@
     linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
   background-size: 56px 56px;
   mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, black 30%, transparent 80%);
+  position: absolute;
+  top: -56px;
+  left: -56px;
+  width: calc(100% + 56px);
+  height: calc(100% + 56px);
+  will-change: transform;
 }
 
 @utility noise {
@@ -249,10 +255,10 @@
 }
 @keyframes grid-drift {
   0% {
-    background-position: 0 0;
+    transform: translate3d(0, 0, 0);
   }
   100% {
-    background-position: 56px 56px;
+    transform: translate3d(56px, 56px, 0);
   }
 }
 @keyframes rise {
@@ -274,9 +280,12 @@
     opacity: 1;
   }
 }
-@keyframes dash {
-  to {
-    stroke-dashoffset: -1000;
+@keyframes rotate-clockwise {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
 @keyframes marquee {
@@ -290,12 +299,15 @@
 
 @utility animate-float-slow {
   animation: float-slow 8s ease-in-out infinite;
+  will-change: transform;
 }
 @utility animate-pulse-ring {
   animation: pulse-ring 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  will-change: transform, opacity;
 }
 @utility animate-scan {
   animation: scan 3s ease-in-out infinite;
+  will-change: transform;
 }
 @utility animate-grid-drift {
   animation: grid-drift 20s linear infinite;
@@ -305,10 +317,13 @@
 }
 @utility animate-glow-pulse {
   animation: glow-pulse 3s ease-in-out infinite;
+  will-change: opacity;
 }
 @utility animate-dash {
   stroke-dasharray: 8 8;
-  animation: dash 20s linear infinite;
+  transform-origin: center;
+  animation: rotate-clockwise 40s linear infinite;
+  will-change: transform;
 }
 @utility animate-marquee {
   animation: marquee 40s linear infinite;

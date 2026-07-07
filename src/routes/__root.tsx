@@ -75,34 +75,35 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Sentrust — AI Background Verification Platform for Enterprises in Nepal" },
+      { title: "Havn | Employee Background Verification for Nepal's Hiring Teams" },
       {
         name: "description",
         content:
-          "Sentrust is Nepal's trust intelligence platform for enterprise background verification — citizenship, education, employment, property, CRC and police checks powered by AI and government-grade validation.",
+          "Havn provides structured employment, education, identity, and reference verification for HR teams and recruiters hiring in Nepal. Technology-assisted, human-verified.",
       },
-      { name: "author", content: "Sentrust" },
+      { name: "author", content: "Havn" },
       {
         name: "keywords",
         content:
-          "background verification Nepal, citizenship verification, police verification Nepal, education verification, employee verification, CRC verification, KYC Nepal, enterprise verification platform",
+          "background verification Nepal, employment verification Nepal, education verification Nepal, HR background check Nepal, candidate verification Kathmandu, pre-employment screening Nepal",
       },
+      { name: "robots", content: "index, follow" },
       {
         property: "og:title",
-        content: "Sentrust — AI Background Verification for Enterprises in Nepal",
+        content: "Havn | Employee Background Verification for Nepal's Hiring Teams",
       },
       {
         property: "og:description",
         content:
-          "Verify before you trust. Enterprise-grade AI verification — citizenship, education, employment, property, CRC, police checks. 99.98% accuracy, 24-hour turnaround.",
+          "Reliable employee and candidate background verification for companies making important hiring decisions in Nepal. Structured process, human-verified sources.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:site_name", content: "Sentrust" },
+      { property: "og:site_name", content: "Havn" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Sentrust — AI Background Verification Platform" },
+      { name: "twitter:title", content: "Havn | Employee Background Verification for Nepal's Hiring Teams" },
       {
         name: "twitter:description",
-        content: "Nepal's trust intelligence platform for enterprise verification.",
+        content: "Reliable employee and candidate background verification for companies making important hiring decisions in Nepal.",
       },
       { name: "theme-color", content: "#071A2D" },
     ],
@@ -118,23 +119,34 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     scripts: [
       {
+        src: "https://www.googletagmanager.com/gtag/js?id=G-HBTSXHVMPR",
+        async: true,
+      },
+      {
+        children: `
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-HBTSXHVMPR');
+        `,
+      },
+      {
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
-          "@type": "Organization",
-          name: "Sentrust",
-          url: "/",
-          description: "AI-powered background verification platform for enterprises in Nepal.",
-          areaServed: "NP",
-          knowsAbout: [
-            "Background Verification",
-            "Citizenship Verification",
-            "Police Verification",
-            "Education Verification",
-            "Employee Verification",
-            "Property Verification",
-            "CRC Verification",
-          ],
+          "@type": "ProfessionalService",
+          "name": "Havn",
+          "description": "Employee and candidate background verification services for companies hiring in Nepal, covering employment history, education, identity, address, and reference checks.",
+          "url": "https://havnverify.com/",
+          "areaServed": {
+            "@type": "Country",
+            "name": "Nepal"
+          },
+          "serviceType": ["Employment Verification", "Education Verification", "Identity Verification", "Address Verification", "Reference Check", "Background Screening"],
+          "audience": {
+            "@type": "BusinessAudience",
+            "audienceType": "HR Departments, Recruitment Agencies, IT and BPO Companies, Financial Institutions"
+          }
         }),
       },
     ],

@@ -81,39 +81,101 @@ export const Route = createFileRoute("/")({
 
 const FAQS = [
   {
-    q: "How fast can Sentrust complete a background verification in Nepal?",
-    a: "Most verifications complete within 24 hours. Citizenship and education checks are typically ready in 4–12 hours through direct integrations with authorised registries; police clearance takes 24–72 hours depending on district processing times.",
+    q: "How fast can Havn complete a background verification in Nepal?",
+    a: "Most verifications complete within 24 hours. Citizenship, identity, and education checks are typically ready in 4–12 hours through direct integrations with authorised registries; police clearance takes 24–72 hours depending on district processing times.",
   },
   {
-    q: "Is Sentrust legally compliant with Nepal's data privacy laws?",
-    a: "Yes. Sentrust operates under Nepal's Individual Privacy Act 2075, ISO 27001-aligned controls, and enterprise data processing agreements. All personally identifiable information is encrypted at rest with AES-256 and in transit with TLS 1.3.",
+    q: "Is Havn legally compliant with Nepal's data privacy laws?",
+    a: "Yes. Havn operates under Nepal's Individual Privacy Act 2075, ISO 27001-aligned controls, and enterprise data processing agreements. All personally identifiable information is encrypted at rest with AES-256 and in transit with TLS 1.3.",
   },
   {
-    q: "Which industries use Sentrust for verification?",
-    a: "Banks, insurance companies, government agencies, hospitals, HR consultancies, real estate firms, educational institutions, fintechs and legal firms rely on Sentrust to verify identity, credentials and background before onboarding.",
+    q: "Which industries use Havn for verification?",
+    a: "Banks, insurance companies, government agencies, hospitals, HR consultancies, real estate firms, educational institutions, fintechs and legal firms rely on Havn to verify identity, credentials and background before onboarding.",
   },
   {
-    q: "Can Sentrust integrate with our existing HRMS or core banking system?",
-    a: "Yes. Sentrust exposes a REST API, webhooks and pre-built connectors for major HRMS, ATS and core banking platforms. Enterprise deployments include a dedicated integration engineer.",
+    q: "Can Havn integrate with our existing HRMS or core banking system?",
+    a: "Yes. Havn exposes a REST API, webhooks and pre-built connectors for major HRMS, ATS and core banking platforms. Enterprise deployments include a dedicated integration engineer.",
   },
   {
     q: "What happens when a document is forged or tampered with?",
-    a: "Our forgery detection engine flags anomalies in fonts, seals, watermarks and metadata. Suspicious cases automatically route to a human reviewer with a detailed evidence trail before a final verdict.",
+    a: "Our verification engine flags anomalies in fonts, seals, watermarks and metadata. Suspicious cases automatically route to a human reviewer with a detailed evidence trail before a final verdict.",
   },
   {
     q: "Do you offer bulk verification for enterprise onboarding?",
-    a: "Yes. Sentrust handles bulk verification workflows with priority queues, batch dashboards, and dedicated turnaround SLAs for enterprise clients running large hiring or KYC campaigns.",
+    a: "Yes. Havn handles bulk verification workflows with priority queues, batch dashboards, and dedicated turnaround SLAs for enterprise clients running large hiring or KYC campaigns.",
   },
 ];
 
+/* ---------------- Preloader ---------------- */
+function Preloader({ progress, fadeOut }: { progress: number; fadeOut: boolean }) {
+  return (
+    <div
+      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#061321] transition-all duration-700 ease-in-out ${
+        fadeOut ? "opacity-0 pointer-events-none scale-105" : "opacity-100"
+      }`}
+    >
+      {/* Glow background effects */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
+
+      {/* Centered Logo */}
+      <div className="relative z-10 flex flex-col items-center gap-6">
+        <div className="relative h-12 w-auto animate-pulse flex items-center justify-center">
+          <img
+            src="/logo.png"
+            alt="Havn Logo"
+            className="h-10 w-auto object-contain brightness-110"
+          />
+        </div>
+
+        {/* Progress Bar Container */}
+        <div className="relative w-48 h-[2px] bg-white/10 rounded-full overflow-hidden">
+          <div
+            className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-emerald-400 transition-all duration-300 ease-out shadow-[0_0_8px_#10b981]"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+
+        {/* Percentage Counter */}
+        <span className="text-[10px] font-mono tracking-widest text-muted-foreground uppercase">
+          Initializing &middot; {Math.round(progress)}%
+        </span>
+      </div>
+    </div>
+  );
+}
+
 function LandingPage() {
+  const [loading, setLoading] = useState(true);
+  const [fadeOut, setFadeOut] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setFadeOut(true);
+          setTimeout(() => setLoading(false), 700); // Match transition duration
+          return 100;
+        }
+        const diff = Math.random() * 15 + 5;
+        return Math.min(prev + diff, 100);
+      });
+    }, 80);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="relative min-h-screen overflow-x-clip text-foreground">
+      {loading && <Preloader progress={progress} fadeOut={fadeOut} />}
       <BackgroundFX />
       <Nav />
       <main>
         <Hero />
         <TrustStrip />
+        <Problem />
+        <Approach />
         <Services />
         <WhyUs />
         <HowItWorks />
@@ -121,7 +183,8 @@ function LandingPage() {
         <Industries />
         <Security />
         <DashboardPreview />
-        <Testimonials />
+        <TrustStatement />
+        <ResearchForm />
         <FAQ />
         <FinalCTA />
       </main>
@@ -134,8 +197,8 @@ function LandingPage() {
 /* ---------------- Background ---------------- */
 function BackgroundFX() {
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10">
-      <div className="absolute inset-0 grid-bg animate-grid-drift opacity-60" />
+    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+      <div className="absolute grid-bg animate-grid-drift opacity-60" />
       <div
         className="absolute -top-40 left-1/2 h-[600px] w-[900px] -translate-x-1/2 rounded-full blur-3xl"
         style={{ background: "radial-gradient(circle, rgba(37,99,235,0.35), transparent 70%)" }}
@@ -162,10 +225,9 @@ function Nav() {
   }, []);
   const links = [
     { href: "#services", label: "Services", icon: Fingerprint },
-    { href: "#engine", label: "AI Engine", icon: Brain },
+    { href: "#process", label: "Process", icon: Zap },
     { href: "#industries", label: "Industries", icon: Building },
-    { href: "#security", label: "Security", icon: Lock },
-    { href: "#faq", label: "FAQ", icon: ShieldCheck },
+    { href: "#research", label: "Research", icon: Brain },
   ];
   return (
     <header
@@ -179,12 +241,8 @@ function Nav() {
             scrolled ? "glass-strong" : "glass"
           }`}
         >
-          <a href="#top" className="flex items-center gap-2.5">
-            <Logo />
-            <span className="text-[15px] font-semibold tracking-tight">Sentrust</span>
-            <span className="ml-1 hidden rounded-md border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] uppercase tracking-widest text-muted-foreground sm:inline">
-              NP
-            </span>
+          <a href="#top" className="flex items-center">
+            <img src="/logo.png" alt="Havn Logo" className="h-7 w-auto object-contain" />
           </a>
           <nav className="hidden items-center gap-7 md:flex">
             {links.map((l) => (
@@ -199,11 +257,11 @@ function Nav() {
           </nav>
           <div className="flex items-center gap-2">
             <Dialog open={signInOpen} onOpenChange={setSignInOpen}>
-              <DialogTrigger asChild>
+              {/* <DialogTrigger asChild>
                 <button className="hidden cursor-pointer text-sm text-muted-foreground transition hover:text-foreground sm:inline bg-transparent border-0 outline-none">
                   Sign in
                 </button>
-              </DialogTrigger>
+              </DialogTrigger> */}
               <DialogContent className="glass-strong border-white/10 bg-zinc-950/95 text-white max-w-sm rounded-2xl shadow-2xl backdrop-blur-xl p-6">
                 <DialogHeader className="flex flex-col items-center text-center">
                   <Logo />
@@ -211,7 +269,7 @@ function Nav() {
                     Welcome back
                   </DialogTitle>
                   <DialogDescription className="text-xs text-muted-foreground">
-                    Sign in to your Sentrust enterprise portal
+                    Sign in to your Havn enterprise portal
                   </DialogDescription>
                 </DialogHeader>
                 <SignInForm onSuccess={() => setSignInOpen(false)} />
@@ -222,7 +280,7 @@ function Nav() {
               href="#contact"
               className="btn-primary group hidden sm:inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-medium"
             >
-              Start Verification
+              Request Verification
               <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
             </a>
 
@@ -238,14 +296,14 @@ function Nav() {
                 className="glass-strong border-l border-white/10 bg-zinc-950/95 text-white p-6 flex flex-col justify-between"
               >
                 <div>
-                  <SheetHeader className="flex flex-row items-center gap-2.5 border-b border-white/5 pb-5 text-left">
+                  <SheetHeader className="flex flex-row items-center gap-2 border-b border-white/5 pb-5 text-left">
                     <Logo />
                     <div>
                       <SheetTitle className="text-base font-semibold text-white leading-none">
-                        Sentrust
+                        Havn
                       </SheetTitle>
                       <SheetDescription className="text-[10px] text-muted-foreground mt-1">
-                        Nepal's Trust Intelligence
+                        Verified Hiring
                       </SheetDescription>
                     </div>
                   </SheetHeader>
@@ -273,7 +331,7 @@ function Nav() {
                 </div>
 
                 <div className="mt-auto border-t border-white/5 pt-5 flex flex-col gap-2.5">
-                  <button
+                  {/* <button
                     onClick={() => {
                       setMenuOpen(false);
                       setTimeout(() => setSignInOpen(true), 250);
@@ -281,13 +339,13 @@ function Nav() {
                     className="w-full h-10 border border-white/10 bg-white/5 text-white rounded-xl font-medium text-sm transition hover:bg-white/10 cursor-pointer"
                   >
                     Sign in
-                  </button>
+                  </button> */}
                   <a
                     href="#contact"
                     onClick={() => setMenuOpen(false)}
                     className="btn-primary flex h-10 items-center justify-center gap-1.5 rounded-xl text-sm font-medium"
                   >
-                    Start Verification
+                    Request Verification
                     <ArrowRight className="h-4 w-4" />
                   </a>
                 </div>
@@ -387,7 +445,7 @@ function SignInForm({ onSuccess }: { onSuccess: () => void }) {
         disabled={isLoading}
         className="w-full bg-gradient-to-r from-blue-600 to-emerald-500 hover:opacity-90 text-white py-2 rounded-xl font-semibold shadow-lg shadow-blue-500/10 transition-all duration-300 h-10 mt-2 cursor-pointer"
       >
-        {isLoading ? "Signing in..." : "Sign in to Sentrust"}
+        {isLoading ? "Signing in..." : "Sign in to Havn"}
       </Button>
 
       <div className="relative my-4 flex items-center justify-center">
@@ -457,15 +515,8 @@ function SignInForm({ onSuccess }: { onSuccess: () => void }) {
 
 function Logo() {
   return (
-    <div
-      className="relative grid h-8 w-8 place-items-center rounded-lg"
-      style={{
-        background: "linear-gradient(135deg,#2563EB,#10B981)",
-        boxShadow: "0 6px 20px -4px rgba(37,99,235,.55)",
-      }}
-    >
-      <ShieldCheck className="h-4 w-4 text-white" />
-      <span className="absolute inset-0 rounded-lg ring-1 ring-white/20" />
+    <div className="flex items-center text-emerald-400">
+      <Check className="h-5 w-5 stroke-[3px]" />
     </div>
   );
 }
@@ -482,22 +533,19 @@ function Hero() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
               </span>
-              Nepal's Trust Intelligence Platform · Live
+              BACKGROUND VERIFICATION · NEPAL
             </div>
 
-            <h1 className="mt-6 text-balance text-5xl font-semibold leading-[1.02] tracking-tight sm:text-6xl md:text-7xl animate-rise">
-              <span className="text-gradient">Verify before</span>
-              <br />
-              <span className="text-gradient-brand">you trust.</span>
+            <h1 className="mt-6 text-balance text-5xl font-semibold leading-[1.02] tracking-tight sm:text-6xl md:text-7xl animate-rise text-white">
+              Building Trust in <br />
+              <span className="text-gradient-brand">Nepal's Workforce</span>
             </h1>
 
             <p
               className="mt-6 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground animate-rise"
               style={{ animationDelay: ".1s" }}
             >
-              Enterprise-grade background verification for banks, government, insurance, healthcare
-              and HR — powered by AI, human review and direct integrations with Nepal's authorised
-              registries.
+              Reliable employee and candidate background verification for companies making important hiring decisions.
             </p>
 
             <div
@@ -508,41 +556,24 @@ function Hero() {
                 href="#contact"
                 className="btn-primary group inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold"
               >
-                Start Verification
+                Request Verification
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </a>
               <a
                 href="#contact"
                 className="btn-ghost inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-medium"
               >
-                Schedule Consultation
+                Talk to an Expert
               </a>
             </div>
 
-            <dl
-              className="mt-12 grid grid-cols-2 gap-6 sm:grid-cols-4 animate-rise"
-              style={{ animationDelay: ".3s" }}
-            >
-              {[
-                { v: "250,000+", l: "Successful Verifications" },
-                { v: "99.98%", l: "Accuracy" },
-                { v: "24 hrs", l: "Avg Turnaround" },
-                { v: "500+", l: "Enterprise Clients" },
-              ].map((s) => (
-                <div key={s.l}>
-                  <dt className="text-2xl font-semibold tracking-tight sm:text-3xl text-gradient">
-                    {s.v}
-                  </dt>
-                  <dd className="mt-1 text-xs uppercase tracking-widest text-muted-foreground">
-                    {s.l}
-                  </dd>
-                </div>
-              ))}
-            </dl>
+            <p className="mt-6 text-sm text-muted-foreground animate-rise" style={{ animationDelay: ".25s" }}>
+              Currently onboarding early partner companies in Kathmandu.
+            </p>
           </div>
 
           <div className="lg:col-span-5">
-            <HeroDashboard />
+            <CaseStatusCard />
           </div>
         </div>
       </div>
@@ -550,29 +581,15 @@ function Hero() {
   );
 }
 
-function HeroDashboard() {
-  const items = [
-    {
-      icon: Fingerprint,
-      label: "Identity Verified",
-      meta: "Citizenship · 987-654-321",
-      status: "verified",
-    },
-    {
-      icon: GraduationCap,
-      label: "Education Verified",
-      meta: "Tribhuvan University · BSc",
-      status: "verified",
-    },
-    { icon: BadgeCheck, label: "Police Clearance", meta: "Kathmandu · Clear", status: "verified" },
-    {
-      icon: HomeIcon,
-      label: "Property Verified",
-      meta: "Lalitpur · Plot 2841/B",
-      status: "verified",
-    },
-    { icon: Activity, label: "Risk Score Updated", meta: "Low · 04/100", status: "info" },
+function CaseStatusCard() {
+  const verifications = [
+    { label: "Employment History", status: "Confirmed" },
+    { label: "Education Record", status: "Confirmed" },
+    { label: "Identity Document", status: "Confirmed" },
+    { label: "Address", status: "Verifying" },
+    { label: "Reference Check", status: "Verifying" },
   ];
+
   return (
     <div className="relative animate-rise" style={{ animationDelay: ".15s" }}>
       {/* pulse rings behind */}
@@ -584,117 +601,148 @@ function HeroDashboard() {
         />
       </div>
 
-      <div className="glass-strong glow-ring relative overflow-hidden rounded-2xl p-5">
-        {/* scan line */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-full">
-          <div
-            className="absolute inset-x-0 h-24 animate-scan"
-            style={{
-              background:
-                "linear-gradient(180deg, transparent, rgba(16,185,129,0.22), transparent)",
-            }}
-          />
+      <div className="relative overflow-hidden rounded-3xl bg-white p-7 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.3)] text-slate-800 max-w-md mx-auto">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+          <span className="font-sans text-xs font-bold text-slate-400 uppercase tracking-wider">
+            CASE #VR-2026-0417
+          </span>
+          <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
+            In Review
+          </span>
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-red-400/70" />
-            <div className="h-2 w-2 rounded-full bg-yellow-400/70" />
-            <div className="h-2 w-2 rounded-full bg-emerald-400/70" />
-          </div>
-          <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-muted-foreground">
-            <Radio className="h-3 w-3 text-emerald-400" />
-            Live Verification
-          </div>
-        </div>
-
-        <div className="mt-4 flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3">
-          <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/20 text-primary">
-            <Fingerprint className="h-5 w-5" />
-          </div>
-          <div className="flex-1">
-            <div className="text-sm font-medium">Aayush Sharma</div>
-            <div className="text-xs text-muted-foreground">
-              Application #NP-4482 · Enterprise HR
-            </div>
-          </div>
-          <div className="rounded-md bg-emerald-500/15 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-300">
-            Verified
-          </div>
-        </div>
-
-        <ul className="mt-3 space-y-2">
-          {items.map((it, i) => (
-            <li
-              key={it.label}
-              className="flex items-center gap-3 rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2.5 animate-rise"
-              style={{ animationDelay: `${0.3 + i * 0.08}s` }}
-            >
-              <div className="grid h-8 w-8 place-items-center rounded-md bg-white/5">
-                <it.icon className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <div className="flex-1">
-                <div className="text-sm font-medium">{it.label}</div>
-                <div className="text-[11px] text-muted-foreground">{it.meta}</div>
-              </div>
-              {it.status === "verified" ? (
-                <Check className="h-4 w-4 text-emerald-400" />
-              ) : (
-                <span className="text-[11px] text-emerald-400">Low</span>
-              )}
+        <ul className="mt-4 divide-y divide-slate-100">
+          {verifications.map((item) => (
+            <li key={item.label} className="flex items-center justify-between py-3.5">
+              <span className="text-sm font-semibold text-slate-700">{item.label}</span>
+              <span
+                className={`text-sm font-bold ${
+                  item.status === "Confirmed" ? "text-emerald-600" : "text-slate-400"
+                }`}
+              >
+                {item.status}
+              </span>
             </li>
           ))}
         </ul>
 
-        <div className="mt-4 grid grid-cols-3 gap-2 rounded-xl border border-white/5 bg-white/[0.02] p-3">
-          <MiniStat label="Turnaround" value="4h 12m" />
-          <MiniStat label="Confidence" value="99.4%" />
-          <MiniStat label="Sources" value="7" />
+        <div className="mt-4 border-t border-slate-100 pt-4 flex items-center justify-between text-xs text-slate-400 font-bold">
+          <span>Reviewed by verification analyst</span>
+          <span>Source-checked</span>
         </div>
       </div>
-
-      {/* floating chips */}
-      <div className="pointer-events-none absolute lg:-left-20 xl:-left-28 top-16 hidden animate-float-slow lg:block">
-        <FloatingChip icon={Cpu} title="AI OCR" sub="Document parsed · 1.2s" />
-      </div>
-      <div
-        className="pointer-events-none absolute lg:-right-20 xl:-right-28 bottom-12 hidden animate-float-slow lg:block"
-        style={{ animationDelay: "1.5s" }}
-      >
-        <FloatingChip icon={Lock} title="AES-256 Encrypted" sub="At rest & in transit" />
-      </div>
     </div>
   );
 }
 
-function MiniStat({ label, value }: { label: string; value: string }) {
+/* ---------------- The Problem ---------------- */
+function Problem() {
+  const problems = [
+    {
+      title: "Inflated experience",
+      desc: "Job titles, durations, and responsibilities that don't match what previous employers actually confirm.",
+    },
+    {
+      title: "Unverifiable credentials",
+      desc: "Certificates and degrees that are difficult to confirm without contacting the issuing institution directly.",
+    },
+    {
+      title: "Manual effort, every time",
+      desc: "HR teams spend hours calling previous employers and references — work that pulls them away from hiring itself.",
+    },
+  ];
+
   return (
-    <div>
-      <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{label}</div>
-      <div className="mt-0.5 text-sm font-semibold">{value}</div>
-    </div>
+    <section className="relative mx-auto mt-32 max-w-7xl px-4">
+      <SectionHeader
+        eyebrow="The Problem"
+        title="Hiring mistakes cost businesses."
+        sub="Fake experience, incorrect information, and unverified backgrounds create risk for every company that hires without independently checking what a candidate has claimed."
+      />
+      <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {problems.map((p) => (
+          <article
+            key={p.title}
+            className="card-surface relative overflow-hidden p-6 border-l-4 border-l-blue-500"
+          >
+            <h3 className="text-lg font-semibold tracking-tight text-white">{p.title}</h3>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{p.desc}</p>
+          </article>
+        ))}
+      </div>
+    </section>
   );
 }
 
-function FloatingChip({
-  icon: Icon,
-  title,
-  sub,
-}: {
-  icon: typeof Cpu;
-  title: string;
-  sub: string;
-}) {
+/* ---------------- The Approach ---------------- */
+function Approach() {
+  const techHandles = [
+    "Case intake and tracking",
+    "Document collection",
+    "Status updates",
+    "Report generation",
+    "Pattern checks for inconsistencies",
+  ];
+
+  const teamHandles = [
+    "Calling previous employers",
+    "Confirming with institutions",
+    "Reference conversations",
+    "Reviewing every report before delivery",
+    "Final sign-off",
+  ];
+
   return (
-    <div className="glass-strong flex items-center gap-2.5 rounded-xl px-3 py-2 shadow-2xl">
-      <div className="grid h-7 w-7 place-items-center rounded-md bg-primary/20 text-primary">
-        <Icon className="h-4 w-4" />
+    <section id="process" className="relative mx-auto mt-32 max-w-7xl px-4">
+      <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12">
+        <div className="lg:col-span-6">
+          <div className="text-xs uppercase tracking-[0.25em] text-primary">The Approach</div>
+          <h2 className="mt-3 text-balance text-4xl font-semibold leading-tight tracking-tight sm:text-5xl text-gradient">
+            Structured verification, not guesswork.
+          </h2>
+          <p className="mt-5 max-w-xl text-muted-foreground">
+            Havn helps organizations verify candidate information through a structured verification
+            workflow — built on real sources and reviewed by people, not just software.
+          </p>
+        </div>
+
+        <div className="lg:col-span-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 rounded-2xl border border-white/10 bg-white shadow-2xl overflow-hidden">
+            {/* Technology handles */}
+            <div className="p-6 bg-white text-slate-800">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">
+                Technology Handles
+              </h3>
+              <ul className="space-y-3">
+                {techHandles.map((item) => (
+                  <li key={item} className="flex items-start gap-2.5 text-sm font-medium text-slate-700">
+                    <span className="h-1.5 w-1.5 rounded-full bg-blue-500 mt-2 shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Our team handles */}
+            <div className="p-6 bg-[#0c1e30] text-white flex flex-col justify-between">
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4">
+                  Our Team Handles
+                </h3>
+                <ul className="space-y-3">
+                  {teamHandles.map((item) => (
+                    <li key={item} className="flex items-start gap-2.5 text-sm font-medium text-zinc-100">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 mt-2 shrink-0" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div>
-        <div className="text-xs font-semibold leading-tight">{title}</div>
-        <div className="text-[10px] text-muted-foreground">{sub}</div>
-      </div>
-    </div>
+    </section>
   );
 }
 
@@ -734,48 +782,48 @@ function TrustStrip() {
 function Services() {
   const services = [
     {
-      icon: Fingerprint,
-      title: "Citizenship Verification",
-      desc: "Real-time validation against Nepal's national citizenship registry with biometric matching.",
+      icon: Briefcase,
+      title: "Employment Verification",
+      desc: "Company, designation, employment dates, and experience claims confirmed with previous employers.",
       accent: "from-blue-500/40 to-blue-500/0",
     },
     {
       icon: GraduationCap,
       title: "Education Verification",
-      desc: "Direct integration with universities, boards and colleges across Nepal to validate transcripts.",
+      desc: "Degree, certificate, and institution validation directly with the issuing college or university.",
       accent: "from-emerald-500/40 to-emerald-500/0",
     },
     {
-      icon: UserCheck,
-      title: "Employee Verification",
-      desc: "Past employer confirmation, tenure, designation and reason-for-leaving with reference calls.",
+      icon: Fingerprint,
+      title: "Identity Verification",
+      desc: "Citizenship, PAN, and other government-issued document validation where legally accessible.",
       accent: "from-indigo-500/40 to-indigo-500/0",
     },
     {
-      icon: HomeIcon,
-      title: "Property Verification",
-      desc: "Land ownership, encumbrance, malpot records and physical site verification across districts.",
+      icon: MapPin,
+      title: "Address Verification",
+      desc: "Confirmation of stated residential address against available records and documentation.",
       accent: "from-cyan-500/40 to-cyan-500/0",
     },
     {
-      icon: FileCheck2,
-      title: "CRC Verification",
-      desc: "Court record and criminal history checks aggregated across district and appellate courts.",
+      icon: UserCheck,
+      title: "Reference Check",
+      desc: "Direct conversations with professional references to confirm work ethic and conduct.",
       accent: "from-violet-500/40 to-violet-500/0",
     },
     {
-      icon: BadgeCheck,
-      title: "Police Verification",
-      desc: "District-level police clearance with digital chain-of-custody and evidence audit trail.",
+      icon: Building2,
+      title: "Custom Business Verification",
+      desc: "Tailored checks for vendor, partner, or business-entity verification on request.",
       accent: "from-emerald-500/40 to-teal-500/0",
     },
   ];
   return (
     <section id="services" className="relative mx-auto mt-32 max-w-7xl px-4">
       <SectionHeader
-        eyebrow="Verification Suite"
-        title="Every check your compliance team needs — in one platform"
-        sub="Six production verification services built for the pace of enterprise onboarding in Nepal. More coming soon: identity, document, address, business and vendor verification."
+        eyebrow="Verification Services"
+        title="What we verify"
+        sub="Six background verification services built for candidate screening and compliance onboarding in Nepal."
       />
       <div className="mt-14 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {services.map((s) => (
@@ -791,7 +839,7 @@ function Services() {
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
               <div className="mt-6 flex items-center justify-between text-sm">
                 <span className="text-xs uppercase tracking-widest text-muted-foreground">
-                  Live in Nepal
+                  Nepal coverage
                 </span>
                 <ArrowUpRight className="h-4 w-4 text-muted-foreground transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-white" />
               </div>
@@ -808,22 +856,22 @@ function WhyUs() {
   return (
     <section className="relative mx-auto mt-32 max-w-7xl px-4">
       <SectionHeader
-        eyebrow="Why Enterprises Choose Sentrust"
+        eyebrow="Why Enterprises Choose Havn"
         title="Built for scale, audited for trust"
         sub="A verification stack designed with the operational and regulatory reality of Nepali enterprises."
       />
       <div className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-6 md:grid-rows-4">
         <Bento
           className="md:col-span-3 md:row-span-2"
-          title="AI-first verification engine"
-          desc="OCR, forgery detection, face-match and risk scoring across every submission — trained on Nepal-specific documents."
+          title="Tech-enabled verification workflow"
+          desc="Structured data extraction, case tracking, and automatic checks integrated with expert human validation."
         >
           <NeuralViz />
         </Bento>
         <Bento
           className="md:col-span-3 md:row-span-2"
           title="Human review, on every edge case"
-          desc="AI drives speed. Certified reviewers make the final call on anomalies, protecting you from false positives."
+          desc="Automation drives speed. Certified reviewers make the final call on anomalies, protecting you from false positives."
         >
           <ReviewerViz />
         </Bento>
@@ -984,57 +1032,231 @@ function ApiViz() {
 
 /* ---------------- How It Works ---------------- */
 function HowItWorks() {
+  const [activeStep, setActiveStep] = useState(0);
+
   const steps = [
     {
-      icon: FileCheck2,
-      title: "Submit request",
-      desc: "Trigger a verification via dashboard, API or bulk import.",
+      title: "Submit candidate details",
+      desc: "Share the information you'd like verified through a simple request form.",
     },
     {
-      icon: Scan,
-      title: "Upload documents",
-      desc: "Secure vault ingests documents with instant OCR & structuring.",
+      title: "Verification begins",
+      desc: "Your case is logged and assigned to a verification analyst.",
     },
     {
-      icon: Cpu,
-      title: "AI verification",
-      desc: "OCR, face-match, forgery detection and registry cross-check run in parallel.",
+      title: "Source validation",
+      desc: "We contact employers, institutions, and references directly.",
     },
     {
-      icon: Eye,
-      title: "Human review",
-      desc: "Certified reviewers validate flagged anomalies with a full evidence trail.",
+      title: "Quality review",
+      desc: "Findings are cross-checked before anything is finalized.",
     },
     {
-      icon: BadgeCheck,
-      title: "Verification report",
-      desc: "Signed, tamper-evident report delivered with API webhook & PDF.",
+      title: "Verification report delivered",
+      desc: "You receive a clear, structured report ready for your hiring decision.",
     },
   ];
+
+  const visualData = [
+    // Step 1
+    (
+      <div className="space-y-4 animate-fade-in">
+        <div className="flex items-center justify-between border-b border-white/5 pb-3">
+          <span className="text-xs uppercase tracking-wider text-muted-foreground font-mono">INTAKE PORTAL</span>
+          <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] text-blue-400 font-medium">
+            <span className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-pulse" /> Ready
+          </span>
+        </div>
+        <div className="space-y-3">
+          <div>
+            <div className="text-[10px] uppercase text-zinc-400 tracking-wider">Candidate Name</div>
+            <div className="mt-1 rounded-lg border border-white/5 bg-white/[0.02] px-3 py-1.5 text-xs text-white">
+              Aayush Shrestha
+            </div>
+          </div>
+          <div>
+            <div className="text-[10px] uppercase text-zinc-400 tracking-wider">Position Claimed</div>
+            <div className="mt-1 rounded-lg border border-white/5 bg-white/[0.02] px-3 py-1.5 text-xs text-white">
+              Senior React Developer
+            </div>
+          </div>
+          <div>
+            <div className="text-[10px] uppercase text-zinc-400 tracking-wider">Submitted Attachments</div>
+            <div className="mt-2 space-y-1.5">
+              <div className="flex items-center justify-between rounded-lg bg-emerald-500/5 border border-emerald-500/10 px-3 py-1.5 text-[11px] text-emerald-400">
+                <span className="truncate font-mono">kathmandu_uni_degree.pdf</span>
+                <Check className="h-3 w-3 shrink-0 stroke-[3px]" />
+              </div>
+              <div className="flex items-center justify-between rounded-lg bg-emerald-500/5 border border-emerald-500/10 px-3 py-1.5 text-[11px] text-emerald-400">
+                <span className="truncate font-mono">experience_letter.pdf</span>
+                <Check className="h-3 w-3 shrink-0 stroke-[3px]" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    ),
+    // Step 2
+    (
+      <div className="space-y-4 animate-fade-in">
+        <div className="flex items-center justify-between border-b border-white/5 pb-3">
+          <span className="text-xs uppercase tracking-wider text-muted-foreground font-mono">WORKSPACE ALLOCATION</span>
+          <span className="inline-flex items-center gap-1 rounded-full bg-yellow-500/10 px-2 py-0.5 text-[10px] text-yellow-400 font-medium">
+            Assigned
+          </span>
+        </div>
+        <div className="font-mono text-xs text-zinc-400 space-y-2">
+          <div className="flex justify-between border-b border-white/5 pb-1">
+            <span>CASE ID:</span>
+            <span className="text-white">#VR-2026-0417</span>
+          </div>
+          <div className="flex justify-between border-b border-white/5 pb-1">
+            <span>LEAD ANALYST:</span>
+            <span className="text-white">Nabin Rajbhandari</span>
+          </div>
+          <div className="flex justify-between border-b border-white/5 pb-1">
+            <span>DATA STORAGE:</span>
+            <span className="text-emerald-400">SECURE VAULT</span>
+          </div>
+          <div className="flex justify-between">
+            <span>ACTIVITY LOGGER:</span>
+            <span className="text-blue-400">INITIATED</span>
+          </div>
+          <div className="mt-3 rounded-lg bg-white/[0.01] border border-white/5 p-3 text-[10px] text-muted-foreground leading-relaxed">
+            Case files isolated. Analyst assigned to contact university administrator and verify registry signatures.
+          </div>
+        </div>
+      </div>
+    ),
+    // Step 3
+    (
+      <div className="space-y-4 animate-fade-in">
+        <div className="flex items-center justify-between border-b border-white/5 pb-3">
+          <span className="text-xs uppercase tracking-wider text-muted-foreground font-mono">SOURCE CHECK STATUS</span>
+          <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] text-blue-400 font-medium">
+            Verifying
+          </span>
+        </div>
+        <div className="space-y-2.5">
+          <div className="rounded-lg border border-white/5 bg-white/[0.02] p-2.5">
+            <div className="flex items-center justify-between text-xs text-white">
+              <span className="font-semibold">Kathmandu University Registry</span>
+              <span className="text-emerald-400 font-mono text-[10px] uppercase font-bold">MATCHED</span>
+            </div>
+            <p className="mt-1 text-[10px] text-muted-foreground">Degree credentials verified against central office registers.</p>
+          </div>
+          <div className="rounded-lg border border-white/5 bg-white/[0.02] p-2.5">
+            <div className="flex items-center justify-between text-xs text-white">
+              <span className="font-semibold">Nimble Technologies HR</span>
+              <span className="text-emerald-400 font-mono text-[10px] uppercase font-bold">CONFIRMED</span>
+            </div>
+            <p className="mt-1 text-[10px] text-muted-foreground">Job title, tenure dates, and exit details validated by phone check.</p>
+          </div>
+        </div>
+      </div>
+    ),
+    // Step 4
+    (
+      <div className="space-y-4 animate-fade-in">
+        <div className="flex items-center justify-between border-b border-white/5 pb-3">
+          <span className="text-xs uppercase tracking-wider text-muted-foreground font-mono">QUALITY CHECKLIST</span>
+          <span className="inline-flex items-center gap-1 rounded-full bg-purple-500/10 px-2 py-0.5 text-[10px] text-purple-400 font-medium">
+            QC Review
+          </span>
+        </div>
+        <div className="space-y-2">
+          {[
+            { t: "Verification discrepancy check", s: "Passed" },
+            { t: "University registrar signature hash", s: "Passed" },
+            { t: "Employment history data audit", s: "Passed" },
+            { t: "Local reference statement alignment", s: "Approved" },
+          ].map((item) => (
+            <div key={item.t} className="flex items-center justify-between border-b border-white/5 pb-1.5 text-xs">
+              <span className="text-zinc-400">{item.t}</span>
+              <span className="text-emerald-400 font-semibold">{item.s}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    ),
+    // Step 5
+    (
+      <div className="text-center py-6 animate-fade-in space-y-4">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 shadow-lg shadow-emerald-500/5">
+          <Check className="h-6 w-6 stroke-[3px]" />
+        </div>
+        <div>
+          <h4 className="text-base font-bold text-white">Verification Report Complete</h4>
+          <p className="mt-1.5 text-xs text-muted-foreground max-w-xs mx-auto leading-relaxed">
+            All details verified against official sources. A secure, cryptographically signed report has been finalized.
+          </p>
+        </div>
+        <button className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 px-4 py-2.5 text-xs font-semibold text-white hover:opacity-90 shadow-lg shadow-blue-500/10 cursor-pointer">
+          Download PDF Report
+        </button>
+      </div>
+    ),
+  ];
+
   return (
-    <section className="relative mx-auto mt-32 max-w-7xl px-4">
+    <section id="process" className="relative mx-auto mt-32 max-w-7xl px-4">
       <SectionHeader
         eyebrow="How It Works"
-        title="From request to signed report in under 24 hours"
-        sub="A workflow designed for enterprise volumes and audit-grade traceability."
+        title="A verification, not a shortcut."
+        sub="A detailed look at our thorough background verification lifecycle."
       />
-      <ol className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-5">
-        {steps.map((s, i) => (
-          <li key={s.title} className="card-surface relative p-5">
-            <div className="flex items-center justify-between">
-              <div className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5 text-primary">
-                <s.icon className="h-5 w-5" />
-              </div>
-              <span className="font-mono text-xs text-muted-foreground">0{i + 1}</span>
+
+      <div className="mt-14 grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-stretch">
+        {/* Interactive Steps List */}
+        <div className="lg:col-span-5 space-y-3 lg:space-y-0 lg:flex lg:flex-col lg:justify-between h-full">
+          {steps.map((s, i) => {
+            const isActive = activeStep === i;
+            return (
+              <button
+                key={s.title}
+                onClick={() => setActiveStep(i)}
+                onMouseEnter={() => setActiveStep(i)}
+                className={`w-full text-left flex items-start gap-4 p-4 rounded-xl border transition-all duration-300 outline-none ${
+                  isActive
+                    ? "bg-white/[0.04] border-white/15 shadow-lg shadow-black/10"
+                    : "bg-white/[0.01] border-white/5 hover:bg-white/[0.02] hover:border-white/10"
+                }`}
+              >
+                <div
+                  className={`grid h-8 w-8 shrink-0 place-items-center rounded-full border text-xs font-semibold transition-all duration-300 ${
+                    isActive
+                      ? "border-emerald-500 bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
+                      : "border-white/10 bg-zinc-950 text-zinc-400"
+                  }`}
+                >
+                  {i + 1}
+                </div>
+                <div>
+                  <h3
+                    className={`text-base font-semibold transition-colors duration-300 ${
+                      isActive ? "text-white" : "text-zinc-400"
+                    }`}
+                  >
+                    {s.title}
+                  </h3>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{s.desc}</p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Live Visual Board */}
+        <div className="lg:col-span-7 flex flex-col">
+          {/* Card Container on Desktop */}
+          <div className="glass-strong rounded-3xl border border-white/10 p-6 sm:p-8 shadow-2xl relative overflow-hidden flex-1 flex flex-col justify-center">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 to-emerald-500/5 pointer-events-none" />
+            <div className="relative z-10">
+              {visualData[activeStep]}
             </div>
-            <h3 className="mt-5 text-base font-semibold">{s.title}</h3>
-            <p className="mt-1.5 text-sm text-muted-foreground">{s.desc}</p>
-            {i < steps.length - 1 && (
-              <ChevronRight className="absolute right-[-14px] top-1/2 hidden h-5 w-5 -translate-y-1/2 text-white/20 md:block" />
-            )}
-          </li>
-        ))}
-      </ol>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }
@@ -1052,11 +1274,11 @@ function AIEngine() {
     { icon: ShieldCheck, title: "Compliance Engine", desc: "Policy checks & audit trail" },
   ];
   return (
-    <section id="engine" className="relative mx-auto mt-32 max-w-7xl px-4">
+    <section id="research" className="relative mx-auto mt-32 max-w-7xl px-4">
       <SectionHeader
-        eyebrow="Sentrust AI Engine"
-        title="Eight verification models. One trust decision."
-        sub="Our proprietary engine combines document intelligence, biometrics, government-registry validation and risk scoring into a single trust verdict."
+        eyebrow="Havn Verification Engine"
+        title="Eight check categories. One trust decision."
+        sub="Our platform combines document intelligence, biometrics, and manual validation into a single verified report."
       />
       <div className="mt-14 grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-center">
         <div className="lg:col-span-5">
@@ -1128,23 +1350,18 @@ function EngineOrbit() {
 /* ---------------- Industries ---------------- */
 function Industries() {
   const industries = [
-    { icon: Building, name: "Banking" },
-    { icon: Wallet, name: "Insurance" },
-    { icon: Landmark, name: "Government" },
-    { icon: Briefcase, name: "Recruitment" },
-    { icon: Stethoscope, name: "Healthcare" },
-    { icon: GraduationCap, name: "Education" },
-    { icon: HomeIcon, name: "Real Estate" },
-    { icon: BarChart3, name: "Finance" },
-    { icon: Gavel, name: "Legal" },
-    { icon: Cpu, name: "IT & Fintech" },
+    { icon: Cpu, name: "Technology Companies" },
+    { icon: Briefcase, name: "Recruitment Firms" },
+    { icon: Building2, name: "BPO & Outsourcing" },
+    { icon: Landmark, name: "Banks & Finance" },
+    { icon: Briefcase, name: "Growing Businesses" },
   ];
   return (
     <section id="industries" className="relative mx-auto mt-32 max-w-7xl px-4">
       <SectionHeader
-        eyebrow="Industries"
-        title="Trusted across Nepal's most regulated sectors"
-        sub="From central-bank supervised financial institutions to national hospitals — Sentrust powers verification at scale."
+        eyebrow="Who We Work With"
+        title="Built for organizations that hire often"
+        sub="Verification tailored for the needs of high-growth teams and regulated sectors in Nepal."
       />
       <div className="mt-14 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
         {industries.map((i) => (
@@ -1478,6 +1695,285 @@ function Testimonials() {
   );
 }
 
+/* ---------------- Trust Statement Callout ---------------- */
+function TrustStatement() {
+  return (
+    <section className="relative mx-auto mt-32 max-w-5xl px-4 text-center">
+      <div className="glass-strong glow-ring rounded-3xl p-8 sm:p-12 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-emerald-500/10 opacity-30 pointer-events-none" />
+        <div className="relative z-10">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gradient-brand leading-tight">
+            Built for Nepal's hiring ecosystem.
+          </h2>
+          <p className="mt-4 max-w-2xl mx-auto text-base sm:text-lg text-muted-foreground leading-relaxed">
+            Verification you can hand to a hiring manager, a compliance officer, or a client — and stand behind.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- Early Access & Research Form ---------------- */
+function ResearchForm() {
+  const [name, setName] = useState("");
+  const [company, setCompany] = useState("");
+  const [role, setRole] = useState("");
+  const [industry, setIndustry] = useState("");
+  const [currentProcess, setCurrentProcess] = useState("");
+  const [willingness, setWillingness] = useState("");
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name || !company || !email) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("https://formspree.io/f/xjgqzweg", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          company,
+          role,
+          industry,
+          current_process: currentProcess,
+          willingness,
+          email,
+        }),
+      });
+
+      if (response.ok) {
+        setIsSuccess(true);
+        toast.success("Thank you for your feedback!");
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Network error. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <section id="research" className="relative mx-auto mt-32 max-w-7xl px-4">
+      <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:items-center">
+        <div className="lg:col-span-6 space-y-6">
+          <div className="space-y-4">
+            <span className="text-xs uppercase tracking-[0.25em] text-primary">Early Access & Research</span>
+            <h2 className="text-balance text-4xl font-semibold leading-tight tracking-tight sm:text-5xl text-gradient">
+              We're building this with real HR teams.
+            </h2>
+            <p className="text-muted-foreground leading-relaxed">
+              Havn is at an early stage. If you're hiring in Nepal, we'd like to understand how your team currently handles background verification — and, if it's useful, offer an early verification at no cost in exchange for your feedback.
+            </p>
+          </div>
+
+          <div className="mt-8 space-y-4 border-t border-white/5 pt-6">
+            <div className="flex items-start gap-3">
+              <div className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <Check className="h-3 w-3 stroke-[3px]" />
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-white">Influence the Roadmap</h4>
+                <p className="text-xs text-muted-foreground">Help shape candidate screening tools built specifically for Nepal.</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <Check className="h-3 w-3 stroke-[3px]" />
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-white">Free Verification Trial</h4>
+                <p className="text-xs text-muted-foreground">Get your first few candidate checks completely free of charge.</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <Check className="h-3 w-3 stroke-[3px]" />
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-white">Direct Expert Access</h4>
+                <p className="text-xs text-muted-foreground">Work closely with our local verification analysts and developers.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="lg:col-span-6">
+          <div className="glass-strong rounded-2xl border border-white/10 p-6 sm:p-8 shadow-2xl relative">
+            {isSuccess ? (
+              <div className="text-center py-10 animate-rise">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
+                  <Check className="h-6 w-6 stroke-[3px]" />
+                </div>
+                <h3 className="mt-4 text-xl font-bold text-white">Thank you!</h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  We've received your details and will reach out to you soon.
+                </p>
+                <Button
+                  onClick={() => setIsSuccess(false)}
+                  className="mt-6 bg-white/5 border border-white/10 text-white hover:bg-white/10 rounded-xl cursor-pointer"
+                >
+                  Submit Another Response
+                </Button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <label htmlFor="research-name" className="text-xs font-medium text-zinc-300">
+                      Name <span className="text-red-400">*</span>
+                    </label>
+                    <Input
+                      id="research-name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="border-white/10 bg-white/5 text-white placeholder-muted-foreground focus:ring-1 focus:ring-primary focus-visible:ring-primary focus-visible:ring-1"
+                      required
+                      disabled={isLoading}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label htmlFor="research-company" className="text-xs font-medium text-zinc-300">
+                      Company <span className="text-red-400">*</span>
+                    </label>
+                    <Input
+                      id="research-company"
+                      value={company}
+                      onChange={(e) => setCompany(e.target.value)}
+                      className="border-white/10 bg-white/5 text-white placeholder-muted-foreground focus:ring-1 focus:ring-primary focus-visible:ring-primary focus-visible:ring-1"
+                      required
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <label htmlFor="research-role" className="text-xs font-medium text-zinc-300">
+                      Role
+                    </label>
+                    <Input
+                      id="research-role"
+                      placeholder="e.g. HR Manager"
+                      value={role}
+                      onChange={(e) => setRole(e.target.value)}
+                      className="border-white/10 bg-white/5 text-white placeholder-muted-foreground focus:ring-1 focus:ring-primary focus-visible:ring-primary focus-visible:ring-1"
+                      disabled={isLoading}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label htmlFor="research-industry" className="text-xs font-medium text-zinc-300">
+                      Industry
+                    </label>
+                    <select
+                      id="research-industry"
+                      value={industry}
+                      onChange={(e) => setIndustry(e.target.value)}
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgb(161,161,170)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>")`,
+                        backgroundRepeat: "no-repeat",
+                        backgroundPosition: "right 12px center",
+                        backgroundSize: "16px",
+                      }}
+                      className="flex h-10 w-full rounded-md border border-white/10 bg-white/5 pl-3 pr-10 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary focus-visible:ring-primary focus-visible:ring-1 appearance-none cursor-pointer"
+                      disabled={isLoading}
+                    >
+                      <option value="" className="bg-[#0c1e30]">Select one</option>
+                      <option value="IT Company" className="bg-[#0c1e30]">IT Company</option>
+                      <option value="BPO / Outsourcing" className="bg-[#0c1e30]">BPO / Outsourcing</option>
+                      <option value="Recruitment Agency" className="bg-[#0c1e30]">Recruitment Agency</option>
+                      <option value="Bank / Financial Institution" className="bg-[#0c1e30]">Bank / Financial Institution</option>
+                      <option value="Startup" className="bg-[#0c1e30]">Startup</option>
+                      <option value="Other" className="bg-[#0c1e30]">Other</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label htmlFor="research-process" className="text-xs font-medium text-zinc-300">
+                    How do you currently verify candidates?
+                  </label>
+                  <textarea
+                    id="research-process"
+                    rows={3}
+                    value={currentProcess}
+                    onChange={(e) => setCurrentProcess(e.target.value)}
+                    className="flex w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus-visible:ring-primary focus-visible:ring-1"
+                    disabled={isLoading}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label htmlFor="research-willingness" className="text-xs font-medium text-zinc-300">
+                    Would your team consider paying for this?
+                  </label>
+                  <select
+                    id="research-willingness"
+                    value={willingness}
+                    onChange={(e) => setWillingness(e.target.value)}
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgb(161,161,170)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>")`,
+                      backgroundRepeat: "no-repeat",
+                      backgroundPosition: "right 12px center",
+                      backgroundSize: "16px",
+                    }}
+                    className="flex h-10 w-full rounded-md border border-white/10 bg-white/5 pl-3 pr-10 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary focus-visible:ring-primary focus-visible:ring-1 appearance-none cursor-pointer"
+                    disabled={isLoading}
+                  >
+                    <option value="" className="bg-[#0c1e30]">Select one</option>
+                    <option value="Yes, actively looking for this" className="bg-[#0c1e30]">Yes, actively looking for this</option>
+                    <option value="Maybe, depends on pricing" className="bg-[#0c1e30]">Maybe, depends on pricing</option>
+                    <option value="Not sure" className="bg-[#0c1e30]">Not sure</option>
+                    <option value="No" className="bg-[#0c1e30]">No</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label htmlFor="research-email" className="text-xs font-medium text-zinc-300">
+                    Email <span className="text-red-400">*</span>
+                  </label>
+                  <Input
+                    id="research-email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="border-white/10 bg-white/5 text-white placeholder-muted-foreground focus:ring-1 focus:ring-primary focus-visible:ring-primary focus-visible:ring-1"
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-gradient-to-r from-blue-600 to-emerald-500 hover:opacity-90 text-white py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/10 transition-all duration-300 h-11 mt-4 cursor-pointer"
+                >
+                  {isLoading ? "Sharing..." : "Share Feedback"}
+                </Button>
+                <p className="text-center text-[10px] text-muted-foreground mt-2">
+                  Used only for our product research — not published or shared.
+                </p>
+              </form>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ---------------- FAQ ---------------- */
 function FAQ() {
   const [open, setOpen] = useState<number | null>(0);
@@ -1518,7 +2014,7 @@ function FAQ() {
 /* ---------------- Final CTA ---------------- */
 function FinalCTA() {
   return (
-    <section id="contact" className="relative mx-auto mt-32 max-w-6xl px-4">
+    <section id="request" className="relative mx-auto mt-32 max-w-6xl px-4">
       <div className="glass-strong glow-ring relative overflow-hidden rounded-3xl p-10 sm:p-16 text-center">
         <div className="pointer-events-none absolute inset-0 grid-bg opacity-40" />
         <div
@@ -1532,24 +2028,17 @@ function FinalCTA() {
             <Zap className="h-3.5 w-3.5 text-emerald-400" /> Onboard in 48 hours
           </div>
           <h2 className="mx-auto mt-6 max-w-3xl text-balance text-4xl font-semibold leading-tight tracking-tight sm:text-6xl text-gradient-brand">
-            Trust begins with verification.
+            Request a verification, or talk to us first.
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-muted-foreground">
-            Talk to our enterprise team about verification workflows for your bank, HR, insurance or
-            government use case in Nepal.
+            Tell us what you need verified and how many candidates — we'll respond with turnaround time and pricing.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <a
-              href="#contact"
+              href="mailto:hello@havnverify.com"
               className="btn-primary inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold"
             >
-              Book Consultation <ArrowRight className="h-4 w-4" />
-            </a>
-            <a
-              href="#contact"
-              className="btn-ghost inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-medium"
-            >
-              Start Verification
+              Email hello@havnverify.com <ArrowRight className="h-4 w-4" />
             </a>
           </div>
         </div>
@@ -1562,8 +2051,8 @@ function FinalCTA() {
 function Footer() {
   const cols = [
     { h: "Company", l: ["About", "Careers", "Press", "Contact"] },
-    { h: "Services", l: ["Citizenship", "Education", "Employment", "Property", "CRC", "Police"] },
-    { h: "Industries", l: ["Banking", "Insurance", "Government", "Healthcare", "Legal"] },
+    { h: "Services", l: ["Employment", "Education", "Identity", "Address", "Reference Check", "Custom Business"] },
+    { h: "Industries", l: ["Banking", "Insurance", "Recruitment", "Healthcare", "Legal"] },
     { h: "Legal", l: ["Privacy", "Terms", "Data Processing", "Security"] },
   ];
   return (
@@ -1571,12 +2060,11 @@ function Footer() {
       <div className="border-t border-white/[0.06] pt-14">
         <div className="grid grid-cols-2 gap-10 md:grid-cols-6">
           <div className="col-span-2">
-            <div className="flex items-center gap-2.5">
-              <Logo />
-              <span className="text-[15px] font-semibold tracking-tight">Sentrust</span>
-            </div>
+            <a href="#top" className="flex items-center">
+              <img src="/logo.png" alt="Havn Logo" className="h-7 w-auto object-contain" />
+            </a>
             <p className="mt-4 max-w-xs text-sm text-muted-foreground">
-              Nepal's trust intelligence platform for enterprise background verification.
+              Nepal's background verification platform for verified hiring.
             </p>
             <div className="mt-5 text-xs text-muted-foreground">Kathmandu · Nepal</div>
           </div>
@@ -1600,7 +2088,7 @@ function Footer() {
         </div>
         <div className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-white/[0.06] pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center">
           <div>
-            © {new Date().getFullYear()} Sentrust Technologies Pvt. Ltd. All rights reserved.
+            © {new Date().getFullYear()} Havn. All rights reserved.
           </div>
           <div className="flex gap-5">
             <a href="#" className="hover:text-foreground">
