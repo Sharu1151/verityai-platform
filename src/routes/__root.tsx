@@ -154,6 +154,55 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           }
         }),
       },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "How long does a background verification take in Nepal?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Standard verifications (employment, education, identity) are completed in 3 to 5 business days. Complex address verifications or custom corporate checks may take up to 7 business days."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Is candidate consent required for verification?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. All background verification checks are performed strictly with candidate consent, compliant with Nepal's privacy frameworks and Individual Privacy Act requirements."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can Havn integrate with our existing HRMS or core banking system?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. Havn exposes a REST API, webhooks and pre-built connectors for major HRMS, ATS and core banking platforms. Enterprise deployments include a dedicated integration engineer."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What happens when a document is forged or tampered with?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Our verification engine flags anomalies in fonts, seals, watermarks and metadata. Suspicious cases automatically route to a human reviewer with a detailed evidence trail before a final verdict."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Do you offer bulk verification for enterprise onboarding?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. Havn handles bulk verification workflows with priority queues, batch dashboards, and dedicated turnaround SLAs for enterprise clients running large hiring or KYC campaigns."
+              }
+            }
+          ]
+        }),
+      },
     ],
   }),
   shellComponent: RootShell,

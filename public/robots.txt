@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# Explicitly welcome AI Search Bots so they cite us in real-time searches
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+Sitemap: https://havnverify.com/sitemap.xml
