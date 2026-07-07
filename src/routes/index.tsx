@@ -124,6 +124,8 @@ function Preloader({ progress, fadeOut }: { progress: number; fadeOut: boolean }
           <img
             src="/logo.png"
             alt="Havn Logo"
+            width={577}
+            height={237}
             className="h-10 w-auto object-contain brightness-110"
           />
         </div>
@@ -242,7 +244,13 @@ function Nav() {
           }`}
         >
           <a href="#top" className="flex items-center">
-            <img src="/logo.png" alt="Havn Logo" className="h-7 w-auto object-contain" />
+            <img
+              src="/logo.png"
+              alt="Havn Logo"
+              width={577}
+              height={237}
+              className="h-7 w-auto object-contain"
+            />
           </a>
           <nav className="hidden items-center gap-7 md:flex">
             {links.map((l) => (
@@ -2061,7 +2069,13 @@ function Footer() {
         <div className="grid grid-cols-2 gap-10 md:grid-cols-6">
           <div className="col-span-2">
             <a href="#top" className="flex items-center">
-              <img src="/logo.png" alt="Havn Logo" className="h-7 w-auto object-contain" />
+              <img
+                src="/logo.png"
+                alt="Havn Logo"
+                width={577}
+                height={237}
+                className="h-7 w-auto object-contain"
+              />
             </a>
             <p className="mt-4 max-w-xs text-sm text-muted-foreground">
               Nepal's background verification platform for verified hiring.
